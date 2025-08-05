@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kolt Obfuscate</title>
     <style>
         :root {
-            --bg-color-start: #090909;
-            --bg-color-end: #0e0e15;
-            --glass-bg: rgba(20, 20, 30, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.05);
+            --bg-color-start: #0a0a0a;
+            --bg-color-end: #1a1a2e;
+            --glass-bg: rgba(30, 30, 40, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --text-color: #e0e0e0;
-            --header-color: #72dfff;
-            --input-bg: #1e1e2b;
-            --input-border: #333;
-            --input-text-color: #cfd8dc;
-            --obf-btn: #4fc3f7;
-            --obf-btn-hover: #039be5;
+            --header-color: #64b5f6;
+            --input-bg: #212121;
+            --input-border: #424242;
+            --input-text-color: #b0bec5;
+            --obf-btn: #0288d1;
+            --obf-btn-hover: #0277bd;
             --copy-btn: #fbc02d;
             --copy-btn-hover: #f9a825;
             --download-btn: #00c853;
             --download-btn-hover: #009624;
             --clear-btn: #ef5350;
             --clear-btn-hover: #e53935;
-            --syntax-string: #c792ea;
-            --syntax-keyword: #82aaff;
-            --meteor-gradient: linear-gradient(45deg, #ffcc80, #ff5722, #e65100);
-            --meteor-shadow: #ff9100;
+            --preview-btn: #ab47bc;
+            --preview-btn-hover: #9c27b0;
+            --syntax-string: #ce93d8;
+            --syntax-keyword: #4fc3f7;
+            --syntax-comment: #78909c;
+            --meteor-gradient: linear-gradient(45deg, #ff8a65, #f06292, #9575cd);
+            --meteor-shadow: #ff6e40;
+            --light-bg-start: #f5f5f5;
+            --light-bg-end: #e0e0e0;
+            --light-text: #212121;
+            --light-glass-bg: rgba(255, 255, 255, 0.7);
         }
 
         * {
@@ -38,14 +44,31 @@
 
         body {
             background: linear-gradient(to bottom, var(--bg-color-start), var(--bg-color-end));
-            font-family: monospace;
+            font-family: 'JetBrains Mono', monospace;
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
+            transition: background 0.3s ease;
+        }
+
+        body.light-mode {
+            background: linear-gradient(to bottom, var(--light-bg-start), var(--light-bg-end));
+            color: var(--light-text);
+        }
+
+        body.light-mode .glass {
+            background: var(--light-glass-bg);
+        }
+
+        body.light-mode textarea,
+        body.light-mode #result {
+            background: #ffffff;
+            color: #212121;
+            border-color: #bdbdbd;
         }
 
         .loading-screen {
@@ -70,12 +93,12 @@
         }
 
         .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
+            border: 5px solid rgba(255, 255, 255, 0.2);
             border-top-color: var(--header-color);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+            width: 60px;
+            height: 60px;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -86,49 +109,54 @@
 
         .loading-text {
             margin-top: 20px;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: var(--header-color);
         }
 
         .main-content {
             display: none;
             width: 100%;
-            padding: 40px 20px;
+            max-width: 1000px;
+            padding: 30px 15px;
             position: relative;
             z-index: 2;
         }
 
         .glass {
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 25px;
-            width: 100%;
-            max-width: 980px;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-            position: relative;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
         }
 
         h1 {
             color: var(--header-color);
             text-align: center;
-            margin-bottom: 20px;
-            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 25px;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            letter-spacing: 1px;
         }
 
-        textarea {
+        textarea, #result {
             width: 100%;
-            height: 280px;
+            height: 300px;
             background: var(--input-bg);
             border: 1px solid var(--input-border);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 15px;
-            font-size: 16px;
+            font-size: 14px;
             color: var(--input-text-color);
             resize: vertical;
-            margin-bottom: 10px;
-            font-family: monospace;
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus, #result:focus {
+            outline: none;
+            border-color: var(--header-color);
         }
 
         .honeypot {
@@ -141,32 +169,37 @@
 
         .button-scroll {
             overflow-x: auto;
-            margin-top: 10px;
+            margin-top: 15px;
             scrollbar-width: thin;
-            scrollbar-color: #555 transparent;
+            scrollbar-color: #666 transparent;
         }
 
         .button-row {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             padding-bottom: 10px;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 12px 20px;
+            font-size: 14px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             white-space: nowrap;
-            transition: background 0.3s;
-            min-width: 100px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
         }
 
         button.obf {
             background: var(--obf-btn);
-            color: #000;
+            color: #fff;
         }
 
         button.obf:hover {
@@ -184,7 +217,7 @@
 
         button.download {
             background: var(--download-btn);
-            color: #000;
+            color: #fff;
         }
 
         button.download:hover {
@@ -193,55 +226,103 @@
 
         button.clear {
             background: var(--clear-btn);
-            color: #000;
+            color: #fff;
         }
 
         button.clear:hover {
             background: var(--clear-btn-hover);
         }
 
+        button.preview {
+            background: var(--preview-btn);
+            color: #fff;
+        }
+
+        button.preview:hover {
+            background: var(--preview-btn-hover);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background: var(--obf-btn);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         #result {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 10px;
-            padding: 15px;
+            min-height: 200px;
+            margin-top: 20px;
+            overflow: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
-            font-size: 14px;
-            min-height: 160px;
-            margin-top: 25px;
-            color: var(--input-text-color);
-            font-family: monospace;
-            overflow: auto;
         }
 
         .options {
-            margin-top: 30px;
-            margin-bottom: 10px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .option-group {
+            flex: 1;
+            min-width: 200px;
         }
 
         .options label {
             display: block;
-            margin-top: 10px;
-            margin-bottom: 4px;
-            font-size: 15px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .options input[type=range] {
+        .options select, .options input[type=range] {
             width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--input-text-color);
+            border: 1px solid var(--input-border);
             cursor: pointer;
+        }
+
+        .file-upload {
+            margin: 15px 0;
+        }
+
+        .file-upload input[type=file] {
+            display: none;
+        }
+
+        .file-upload label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--obf-btn);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .file-upload label:hover {
+            background: var(--obf-btn-hover);
         }
 
         .meteor {
             position: fixed;
             top: -60px;
             left: -60px;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: var(--meteor-gradient);
             border-radius: 50%;
-            animation: meteorFall 4s linear infinite;
-            box-shadow: 0 0 8px var(--meteor-shadow);
+            animation: meteorFall 5s linear infinite;
+            box-shadow: 0 0 10px var(--meteor-shadow);
             z-index: 0;
         }
 
@@ -250,50 +331,65 @@
                 transform: translate(0, 0) rotate(45deg);
                 opacity: 1;
             }
-
             100% {
-                transform: translate(1200px, 1000px) rotate(45deg);
+                transform: translate(1500px, 1200px) rotate(45deg);
                 opacity: 0;
             }
         }
 
         .bot-challenge {
-            margin-top: 20px;
-            padding: 10px;
+            margin: 15px 0;
+            padding: 15px;
             background: var(--input-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid var(--input-border);
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .bot-challenge input {
-            width: 80px;
+            width: 60px;
             text-align: center;
-            background: #282a36;
-            color: white;
-            border: 1px solid #44475a;
-            border-radius: 4px;
+            background: var(--input-bg);
+            color: var(--input-text-color);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            padding: 5px;
         }
 
-        /* Scrollbar for Webkit */
         ::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 3px;
+            background: #666;
+            border-radius: 4px;
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 10px;
+            }
+
+            .glass {
+                padding: 20px;
+            }
+
             .button-row {
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
             }
         }
     </style>
 </head>
-
 <body>
     <div class="loading-screen" id="loading-screen">
         <div class="loading-spinner"></div>
@@ -302,32 +398,49 @@
 
     <div class="main-content" id="main-content">
         <div class="meteor"></div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Alternar Tema</button>
         <div class="glass">
             <h1>Kolt Obfuscate</h1>
 
             <input type="text" class="honeypot" id="botCheck" autocomplete="off" />
-            <textarea id="inputCode" placeholder="Cole seu script Lua aqui…"></textarea>
+            <div class="file-upload">
+                <label for="fileInput">📤 Carregar Script Lua</label>
+                <input type="file" id="fileInput" accept=".lua,.txt" />
+            </div>
+            <textarea id="inputCode" placeholder="Cole seu script Lua aqui..."></textarea>
 
             <div class="bot-challenge" id="bot-challenge">
                 <span id="challenge-text"></span>
                 <input type="number" id="challenge-input" placeholder="?" />
             </div>
 
+            <div class="options">
+                <div class="option-group">
+                    <label for="obfLevel">Nível de Obfuscação</label>
+                    <select id="obfLevel">
+                        <option value="light">Leve</option>
+                        <option value="medium" selected>Médio</option>
+                        <option value="heavy">Pesado</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="junkAmount">Quantidade de Lixo: <span id="junkVal">3</span></label>
+                    <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="junkVal.textContent = this.value" />
+                </div>
+                <div class="option-group">
+                    <label for="junkMultiplier">Multiplicador de Lixo: <span id="multiVal">1</span></label>
+                    <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="multiVal.textContent = this.value" />
+                </div>
+            </div>
+
             <div class="button-scroll">
                 <div class="button-row">
-                    <button class="obf" onclick="obfuscate()">OBFUSCATE</button>
+                    <button class="obf" onclick="obfuscate()">Obfuscar</button>
+                    <button class="preview" onclick="previewCode()">Visualizar</button>
                     <button class="copy" onclick="copyToClipboard()">Copiar</button>
                     <button class="download" onclick="downloadObfuscated()">Baixar</button>
                     <button class="clear" onclick="clearCode()">Limpar</button>
                 </div>
-            </div>
-
-            <div class="options">
-                <label for="junkAmount">Quantidade de lixo: <span id="junkVal">3</span></label>
-                <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="junkVal.textContent = this.value" />
-
-                <label for="junkMultiplier">Multiplicador de lixo: <span id="multiVal">1</span></label>
-                <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="multiVal.textContent = this.value" />
             </div>
 
             <div id="result"></div>
@@ -338,83 +451,184 @@
         let lastObf = "";
         let challengeAnswer = 0;
 
+        // Carrega preferências do usuário
+        window.onload = async () => {
+            loadPreferences();
+            await initApp();
+        };
+
+        async function initApp() {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('main-content').style.display = 'flex';
+            document.body.style.alignItems = 'flex-start';
+            generateChallenge();
+            setupFileUpload();
+        }
+
         function generateChallenge() {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
+            const num1 = Math.floor(Math.random() * 20) + 1;
+            const num2 = Math.floor(Math.random() * 20) + 1;
             challengeAnswer = num1 + num2;
             document.getElementById('challenge-text').textContent = `Resolva: ${num1} + ${num2} =`;
             document.getElementById('challenge-input').value = '';
         }
 
-        async function initApp() {
-            // Simula o carregamento da API por 3 segundos
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('main-content').style.display = 'flex';
-            document.body.style.alignItems = 'flex-start';
-            generateChallenge();
-        }
-
         function isBot() {
             const honeypot = document.getElementById("botCheck").value.trim();
             const challengeInput = parseInt(document.getElementById("challenge-input").value);
+            return honeypot !== "" || isNaN(challengeInput) || challengeInput !== challengeAnswer;
+        }
 
-            if (honeypot !== "" || challengeInput !== challengeAnswer) {
-                return true;
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        document.getElementById('inputCode').value = event.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function validateLua(code) {
+            // Simula validação de sintaxe Lua (em produção, usar uma biblioteca como Luau)
+            try {
+                // Verifica palavras-chave básicas e estrutura
+                const keywords = ['local', 'function', 'if', 'then', 'else', 'end', 'return'];
+                const lines = code.split('\n');
+                let valid = false;
+                for (let line of lines) {
+                    if (keywords.some(kw => line.includes(kw))) {
+                        valid = true;
+                        break;
+                    }
+                }
+                return valid ? null : 'Código Lua inválido ou não detectado.';
+            } catch (e) {
+                return 'Erro na validação do código: ' + e.message;
+            }
+        }
+
+        function obfuscateCode(code, level, junkAmount, junkMultiplier) {
+            // Simulação de obfuscação para LuaU (Roblox-compatible)
+            const variableMap = {};
+            let obfuscated = code;
+
+            // 1. Renomear variáveis
+            const variableRegex = /\b(local\s+)?(\w+)\s*=/g;
+            let varCounter = 0;
+            obfuscated = obfuscated.replace(variableRegex, (match, local, varName) => {
+                if (!variableMap[varName]) {
+                    variableMap[varName] = `_v${varCounter++}_${Math.random().toString(36).slice(2, 8)}`;
+                }
+                return (local || '') + variableMap[varName] + ' =';
+            });
+
+            // 2. Criptografar strings (simulação simples)
+            const stringRegex = /"([^"]*)"/g;
+            obfuscated = obfuscated.replace(stringRegex, (match, str) => {
+                if (level !== 'light') {
+                    return `loadstring(string.char(${str.split('').map(c => c.charCodeAt(0)).join(', ')}))()`;
+                }
+                return match;
+            });
+
+            // 3. Adicionar código lixo
+            if (junkAmount > 0) {
+                const junkCode = [];
+                for (let i = 0; i < junkAmount * junkMultiplier; i++) {
+                    junkCode.push(`local _junk${i} = math.random(1, 100);`);
+                }
+                obfuscated = `-- Kolt Obfuscate\n${junkCode.join('\n')}\n${obfuscated}`;
             }
 
-            return false;
+            // 4. Ofuscação pesada (simulação de bytecode ou AST scrambling)
+            if (level === 'heavy') {
+                obfuscated = `loadstring("${btoa(obfuscated).replace(/=/g, '')}")()`;
+            }
+
+            return `-- Kolt Obfuscate (Nível: ${level})\n${obfuscated}`;
         }
 
-        // --- Código de Obfuscação aprimorado ---
-        // A lógica de obfuscação foi simplificada aqui para focar na estrutura
-        // da aplicação. Uma obfuscação real para Roblox Lua seria mais complexa.
-        function obfuscateCode(code) {
-            // Em uma implementação real, você usaria uma biblioteca ou
-            // API de obfuscação mais robusta aqui.
-            // Exemplo de uma obfuscação simples (apenas para demonstração)
-            return `-- Kolt Obfuscate - Resultado\n` +
-                   `-- Seu código obfusacado iria aqui, após ser processado\n` +
-                   `loadstring("return 'Ola Mundo'")()\n` +
-                   `-- A obfuscação profissional usaria uma AST (Abstract Syntax Tree) para\n` +
-                   `-- renomear variáveis, ofuscar strings, e adicionar código lixo sem quebrar o script.\n`;
-        }
-
-        function process(code) {
-            let obfuscatedCode = obfuscateCode(code);
-            document.getElementById("result").textContent = obfuscatedCode;
-            lastObf = obfuscatedCode;
-        }
-
-        function obfuscate() {
+        async function obfuscate() {
             if (isBot()) {
-                alert("Verificação de bot falhou. Por favor, tente novamente.");
+                alert("Verificação de bot falhou. Tente novamente.");
                 generateChallenge();
                 return;
             }
 
-            let code = document.getElementById("inputCode").value;
-            if (!code.trim()) {
-                alert("Cole o código!");
+            const code = document.getElementById("inputCode").value.trim();
+            if (!code) {
+                alert("Por favor, insira um script Lua.");
                 return;
             }
 
-            // Exemplo de como você chamaria a lógica de obfuscação
-            process(code);
+            const validationError = validateLua(code);
+            if (validationError) {
+                alert(validationError);
+                return;
+            }
+
+            const level = document.getElementById("obfLevel").value;
+            const junkAmount = parseInt(document.getElementById("junkAmount").value);
+            const junkMultiplier = parseInt(document.getElementById("junkMultiplier").value);
+
+            document.getElementById("result").textContent = "Obfuscando...";
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simula processamento
+
+            try {
+                lastObf = obfuscateCode(code, level, junkAmount, junkMultiplier);
+                document.getElementById("result").textContent = lastObf;
+            } catch (e) {
+                alert("Erro ao ofuscar: " + e.message);
+                document.getElementById("result").textContent = "";
+            }
+            savePreferences();
+        }
+
+        function previewCode() {
+            if (!lastObf) {
+                alert("Nada para visualizar.");
+                return;
+            }
+            const previewWindow = window.open("", "_blank");
+            previewWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Visualização do Código</title>
+                        <style>
+                            body { font-family: monospace; background: #1e1e2b; color: #e0e0e0; padding: 20px; }
+                            pre { white-space: pre-wrap; }
+                        </style>
+                    </head>
+                    <body><pre>${lastObf}</pre></body>
+                </html>
+            `);
         }
 
         function copyToClipboard() {
-            if (!lastObf) return alert("Nada para copiar.");
-            navigator.clipboard.writeText(lastObf).then(() => alert("Copiado!"))
+            if (!lastObf) {
+                alert("Nada para copiar.");
+                return;
+            }
+            navigator.clipboard.writeText(lastObf)
+                .then(() => alert("Código copiado!"))
                 .catch(() => alert("Falha ao copiar."));
         }
 
         function downloadObfuscated() {
-            if (!lastObf) return alert("Nada para baixar.");
+            if (!lastObf) {
+                alert("Nada para baixar.");
+                return;
+            }
             const blob = new Blob([lastObf], { type: "text/plain" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "kolt_obfuscate.lua";
+            a.download = "kolt_obfuscated.lua";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -427,8 +641,28 @@
             generateChallenge();
         }
 
-        window.onload = initApp;
+        function toggleTheme() {
+            document.body.classList.toggle("light-mode");
+            savePreferences();
+        }
+
+        function savePreferences() {
+            localStorage.setItem("theme", document.body.classList.contains("light-mode") ? "light" : "dark");
+            localStorage.setItem("obfLevel", document.getElementById("obfLevel").value);
+            localStorage.setItem("junkAmount", document.getElementById("junkAmount").value);
+            localStorage.setItem("junkMultiplier", document.getElementById("junkMultiplier").value);
+        }
+
+        function loadPreferences() {
+            if (localStorage.getItem("theme") === "light") {
+                document.body.classList.add("light-mode");
+            }
+            document.getElementById("obfLevel").value = localStorage.getItem("obfLevel") || "medium";
+            document.getElementById("junkAmount").value = localStorage.getItem("junkAmount") || 3;
+            document.getElementById("junkMultiplier").value = localStorage.getItem("junkMultiplier") || 1;
+            document.getElementById("junkVal").textContent = document.getElementById("junkAmount").value;
+            document.getElementById("multiVal").textContent = document.getElementById("junkMultiplier").value;
+        }
     </script>
 </body>
-
 </html>
