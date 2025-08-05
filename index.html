@@ -1,407 +1,389 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Kolt Ultra Obfuscator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kolt Obfuscate</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: linear-gradient(135deg, #0a0a0a, #12121a);
-      font-family: 'Courier New', monospace;
-      color: #d0d8e0;
+      background: linear-gradient(to bottom, #090909, #0e0e15);
+      font-family: monospace;
+      color: #e0e0e0;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 30px 15px;
-      overflow: hidden;
+      padding: 40px 20px;
+      overflow-x: hidden;
       position: relative;
     }
     .glass {
-      backdrop-filter: blur(15px);
-      background: rgba(25, 25, 35, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 30px;
+      backdrop-filter: blur(12px);
+      background: rgba(20, 20, 30, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 25px;
       width: 100%;
-      max-width: 1000px;
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+      max-width: 980px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
       position: relative;
-      z-index: 10;
+      z-index: 2;
     }
     h1 {
-      color: #5ab9ff;
+      color: #72dfff;
       text-align: center;
-      margin-bottom: 25px;
-      font-size: 2.2rem;
-      letter-spacing: 1px;
+      margin-bottom: 20px;
+      font-size: 2rem;
     }
     textarea {
       width: 100%;
-      height: 300px;
-      background: #1a1a25;
-      border: 1px solid #2a2a35;
-      border-radius: 12px;
-      padding: 18px;
-      font-size: 15px;
-      color: #b0b8c0;
+      height: 280px;
+      background: #1e1e2b;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      color: #cfd8dc;
       resize: vertical;
-      margin-bottom: 15px;
-      font-family: 'Courier New', monospace;
-      transition: border-color 0.3s;
-    }
-    textarea:focus {
-      border-color: #5ab9ff;
-      outline: none;
+      margin-bottom: 10px;
+      font-family: monospace;
     }
     input[type=text].honeypot {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
+      display: none;
     }
     .button-scroll {
       overflow-x: auto;
-      margin-top: 15px;
-      scrollbar-width: thin;
+      margin-top: 10px;
     }
     .button-row {
       display: flex;
-      gap: 15px;
-      min-width: 700px;
+      gap: 12px;
+      min-width: 680px;
       width: max-content;
-      padding-bottom: 12px;
+      padding-bottom: 10px;
     }
     button {
-      padding: 12px 28px;
-      font-size: 15px;
+      padding: 12px 24px;
+      font-size: 16px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: bold;
       white-space: nowrap;
-      transition: all 0.3s ease;
+      transition: background 0.3s;
     }
-    button.obf { background: #3aa1e0; color: #fff; }
-    button.obf:hover { background: #2a91d0; transform: scale(1.05); }
-    button.copy { background: #e8a923; color: #fff; }
-    button.copy:hover { background: #d89a13; transform: scale(1.05); }
-    button.download { background: #00a843; color: #fff; }
-    button.download:hover { background: #009833; transform: scale(1.05); }
-    button.clear { background: #d73835; color: #fff; }
-    button.clear:hover { background: #c72825; transform: scale(1.05); }
+    button.obf { background: #4fc3f7; color: #000; }
+    button.obf:hover { background: #039be5; }
+    button.copy { background: #fbc02d; color: #000; }
+    button.copy:hover { background: #f9a825; }
+    button.download { background: #00c853; color: #000; }
+    button.download:hover { background: #009624; }
+    button.clear { background: #ef5350; color: #000; }
+    button.clear:hover { background: #e53935; }
     #result {
-      background: #1a1a25;
-      border: 1px solid #2a2a35;
-      border-radius: 12px;
-      padding: 18px;
+      background: #1e1e2b;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 15px;
       white-space: pre-wrap;
-      word-break: break-all;
-      font-size: 13px;
-      min-height: 180px;
-      margin-top: 20px;
-      color: #b0b8c0;
-      font-family: 'Courier New', monospace;
+      word-wrap: break-word;
+      font-size: 14px;
+      min-height: 160px;
+      margin-top: 25px;
+      color: #cfd8dc;
+      font-family: monospace;
     }
     .loader {
       text-align: center;
-      color: #6a6a75;
-      margin-bottom: 12px;
-      font-size: 14px;
+      color: #888;
+      margin-bottom: 10px;
     }
     .options {
-      margin: 20px 0;
+      margin-top: 30px;
+      margin-bottom: 10px;
     }
     .options label {
       display: block;
-      margin: 12px 0 5px;
-      font-size: 14px;
-      color: #a0a8b0;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 15px;
     }
     .options input[type=range] {
       width: 100%;
-      accent-color: #5ab9ff;
     }
     .meteor {
       position: fixed;
-      top: -50px;
-      left: -50px;
-      width: 10px;
-      height: 10px;
-      background: linear-gradient(45deg, #ffca80, #ff7043, #d81b60);
+      top: -60px;
+      left: -60px;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(45deg, #ffcc80, #ff5722, #e65100);
       border-radius: 50%;
-      animation: meteorFall 3.5s linear infinite;
-      box-shadow: 0 0 10px #ff8a65;
+      animation: meteorFall 4s linear infinite;
+      box-shadow: 0 0 8px #ff9100;
       z-index: 0;
     }
     @keyframes meteorFall {
-      0% { transform: translate(0, 0) rotate(45deg); opacity: 0.9; }
-      100% { transform: translate(1500px, 1200px) rotate(45deg); opacity: 0; }
+      0% {
+        transform: translate(0, 0) rotate(45deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(1200px, 1000px) rotate(45deg);
+        opacity: 0;
+      }
     }
     ::-webkit-scrollbar {
-      width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #4a4a55;
+      background: #555;
       border-radius: 3px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #1a1a25;
     }
   </style>
 </head>
 <body>
-  <div class="meteor" id="meteor1"></div>
-  <div class="meteor" id="meteor2" style="animation-delay: 1s;"></div>
+
+  <div class="meteor"></div>
 
   <div class="glass">
-    <h1>Kolt Ultra Obfuscator</h1>
-    <div class="loader" id="loader">🔄 Inicializando...</div>
-    <input type="text" class="honeypot" id="botCheck" autocomplete="off" aria-hidden="true">
-    <textarea id="inputCode" placeholder="Insira seu script Lua aqui..." spellcheck="false"></textarea>
+    <h1>Kolt Obfuscate</h1>
+    <div class="loader" id="loader">🔄 Carregando API...</div>
+
+    <input type="text" class="honeypot" id="botCheck" autocomplete="off" />
+
+    <textarea id="inputCode" placeholder="Cole seu script Lua aqui…"></textarea>
+
     <div class="button-scroll">
       <div class="button-row">
-        <button class="obf" onclick="obfuscate()">Obfuscar</button>
+        <button class="obf" onclick="obfuscate()">OBFUSCATE</button>
         <button class="copy" onclick="copyToClipboard()">Copiar</button>
         <button class="download" onclick="downloadObfuscated()">Baixar</button>
-        <button class="clear" onclick="clearCode()">Limpar</button>
+        <button class="clear" onclick="clearCode()">Clear</button>
       </div>
     </div>
+
     <div class="options">
-      <label for="obfLevel">Nível de Obfuscação: <span id="obfLevelVal">3</span></label>
-      <input type="range" min="1" max="10" value="3" id="obfLevel" oninput="obfLevelVal.textContent = this.value">
-      <label for="entropy">Entropia: <span id="entropyVal">1</span></label>
-      <input type="range" min="1" max="5" value="1" id="entropy" oninput="entropyVal.textContent = this.value">
+      <label for="junkAmount">Quantidade de lixo: <span id="junkVal">3</span></label>
+      <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="junkVal.textContent = this.value" />
+
+      <label for="junkMultiplier">Multiplicador de lixo: <span id="multiVal">1</span></label>
+      <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="multiVal.textContent = this.value" />
     </div>
+
     <div id="result"></div>
   </div>
 
 <script>
-(function() {
-  const _0x = (s) => btoa(s).split('').reverse().join('');
-  const _1x = (s) => atob(s.split('').reverse().join(''));
-  let _2x = '';
+  let lastObf = "";
 
-  // Anti-tampering
-  const integrityCheck = () => {
-    const scripts = document.getElementsByTagName('script');
-    if (scripts.length !== 1 || scripts[0].innerHTML.length < 1000) {
-      document.body.innerHTML = '<h1>Integridade comprometida!</h1>';
-      return false;
+  async function loadApi() {
+    const l = document.getElementById("loader");
+    try {
+      await new Promise(r => setTimeout(r, 400));
+      l.textContent = "✅ API de sintaxe e cores carregada!";
+    } catch {
+      l.textContent = "❌ Falha ao carregar API";
     }
-    return true;
-  };
+  }
 
-  // Anti-debugging
-  (function antiDebug() {
-    const start = performance.now();
-    debugger;
-    if (performance.now() - start > 100) {
-      document.body.innerHTML = '<h1>Debug detectado!</h1>';
-      throw new Error('Anti-debug triggered');
+  // --- Helpers hex ---
+  function toHex(n) {
+    return "0x" + n.toString(16);
+  }
+
+  // Transforma string em array hex (ex: return "abc" vira 0x61 0x62 0x63)
+  function stringToHexArray(str) {
+    let arr = [];
+    for(let i=0; i < str.length; i++) {
+      arr.push(toHex(str.charCodeAt(i)));
     }
-  })();
+    return arr;
+  }
 
-  // Dynamic key for string encryption
-  const generateKey = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let key = '';
-    for (let i = 0; i < 16; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
-    return key;
-  };
-
-  // String encryption (XOR-based)
-  const encryptString = (str, key) => {
-    let result = '';
-    for (let i = 0; i < str.length; i++) {
-      result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  // Gera nomes quebrados tipo "_v_2_aB3"
+  function generateBrokenVarName() {
+    const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const nums = "0123456789";
+    let name = "_v_" + Math.floor(Math.random() * 1000) + "_";
+    for(let i=0; i<3; i++) {
+      name += letters.charAt(Math.floor(Math.random() * letters.length));
     }
-    return btoa(result);
-  };
-
-  // String decryption
-  const decryptString = (enc, key) => {
-    const dec = atob(enc);
-    let result = '';
-    for (let i = 0; i < dec.length; i++) {
-      result += String.fromCharCode(dec.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return result;
-  };
-
-  // Custom encoding (mix of hex and base64)
-  const customEncode = (str) => {
-    const hex = Array.from(str).map(c => '0x' + c.charCodeAt(0).toString(16).padStart(2, '0')).join(':');
-    return _0x(hex);
-  };
-
-  // Custom decoding
-  const customDecode = (enc) => {
-    const hex = _1x(enc).split(':').map(h => String.fromCharCode(parseInt(h, 16))).join('');
-    return hex;
-  };
-
-  // Generate polymorphic variable names
-  const generatePolyVar = () => {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const nums = '0123456789';
-    let name = '_';
-    for (let i = 0; i < 8; i++) {
-      name += Math.random() > 0.5 ? chars.charAt(Math.floor(Math.random() * chars.length)) : nums.charAt(Math.floor(Math.random() * nums.length));
+    for(let i=0; i<2; i++) {
+      name += nums.charAt(Math.floor(Math.random() * nums.length));
     }
     return name;
-  };
+  }
 
-  // Control flow flattening
-  const flattenControlFlow = (code) => {
-    const lines = code.split('\n');
-    const dispatch = generatePolyVar();
-    let flatCode = `local ${dispatch} = 0; while true do\n`;
-    lines.forEach((line, i) => {
-      flatCode += `if ${dispatch} == ${i} then ${line}\n${dispatch} = ${dispatch} + 1;\nend\n`;
-    });
-    flatCode += 'if ' + dispatch + ' >= ' + lines.length + ' then break end\nend';
-    return flatCode;
-  };
-
-  // Generate junk code with dynamic complexity
-  const generateJunk = (count, mult) => {
-    let junk = [];
-    const randHex = () => '0x' + Math.floor(Math.random() * 0xFFFF).toString(16).padStart(4, '0');
-    for (let i = 0; i < count; i++) {
-      for (let j = 0; j < mult; j++) {
-        const varName = generatePolyVar();
-        junk.push(`
-local ${varName} = ${randHex()};
-if ${varName} % 0x${Math.floor(Math.random() * 0xFF).toString(16)} > 0x10 then
-  ${varName} = ${varName} * 0x${Math.floor(Math.random() * 0xFF).toString(16)};
-else
-  ${varName} = ${varName} - 0x01;
-end`);
-      }
-    }
-    return junk.join('\n');
-  };
-
-  // Layer 1: Rename variables and split
-  const layer1 = (code) => {
+  // Camada 1 - inutilizar variáveis e renomear + quebrar variáveis em pedaços
+  function layer1_renameVariablesAndBreak(code) {
+    // Pega todas variáveis locais declaradas
     let vars = [];
-    const regexLocal = /local\s+([A-Za-z_]\w*)/g;
+    let regexLocal = /local\s+([A-Za-z_]\w*)/g;
     let match;
     while ((match = regexLocal.exec(code)) !== null) {
       vars.push(match[1]);
     }
-    const map = {};
+
+    // Gera nomes quebrados e cria mapa de substituição
+    let map = {};
     vars.forEach(v => {
-      map[v] = [generatePolyVar(), generatePolyVar()];
+      map[v] = generateBrokenVarName();
     });
-    for (let v of vars) {
-      const [p1, p2] = map[v];
-      code = code.replace(new RegExp(`local\\s+${v}\\b`, 'g'), `local ${p1}, ${p2}`);
-      code = code.replace(new RegExp(`\\b${v}\\b`, 'g'), `(${p1}..${p2})`);
+
+    // Renomeia variáveis no código (exceto declaração)
+    for(let v of vars) {
+      // Para variáveis muito pequenas, quebre em 2 pedaços
+      let part1 = generateBrokenVarName();
+      let part2 = generateBrokenVarName();
+
+      // Substitui declaração local original por pedaços separados
+      // local var --> local part1, part2; var = part1..part2
+      let pattern = new RegExp(`local\\s+${v}\\b`, "g");
+      code = code.replace(pattern, `local ${part1}, ${part2}`);
+
+      // Substitui todas referências por concatenação dos dois pedaços
+      let refPattern = new RegExp(`\\b${v}\\b`, "g");
+      code = code.replace(refPattern, `(${part1}..${part2})`);
     }
-    return code;
-  };
 
-  // Layer 2: Add junk and control flow obfuscation
-  const layer2 = (code, obfLevel, entropy) => {
-    code = flattenControlFlow(code);
-    code += '\n' + generateJunk(obfLevel, entropy);
     return code;
-  };
+  }
 
-  // Layer 3: Multi-layer encoding
-  const layer3 = (code, key) => {
-    const enc1 = encryptString(code, key);
-    const enc2 = customEncode(enc1);
-    const wrapper = `
-local k = "${key}";
-local b = "${enc2}";
-local d = {};
-for i=1,#b:split(":") do d[i] = tonumber(b:split(":")[i], 16); end
-local s = "";
-for i=1,#d do s = s .. string.char(d[i]); end
-s = atob(s);
-local r = "";
-for i=1,#s do
-  r = r .. string.char(string.byte(s, i) ~ string.byte(k, (i-1)%#k + 1));
+  // Gera código lixo (junk) com if/else inúteis e números hex
+  function generateJunkCode(junkCount, junkMult) {
+    let junk = [];
+    const randHexNum = () => "0x" + Math.floor(Math.random() * 255).toString(16).padStart(2, "0");
+    for(let i=0; i < junkCount; i++) {
+      for(let j=0; j < junkMult; j++) {
+        // Código inútil: if aleatório com números hex e else que não faz nada
+        junk.push(`
+local junk${i}_${j} = ${randHexNum()}
+if junk${i}_${j} > 0x10 then
+  junk${i}_${j} = junk${i}_${j} - 0x01
+else
+  junk${i}_${j} = junk${i}_${j} + 0x01
 end
-local f = loadstring(r);
-return f();
+        `);
+      }
+    }
+    return junk.join("\n");
+  }
+
+  // Converte string para hex usando formato 0xNN separado por /
+  // Exemplo: "abc" -> return({0x61/0x62/0x63})
+  function stringToHexReturnFormat(str) {
+    let arr = [];
+    for(let i=0; i < str.length; i++) {
+      arr.push(toHex(str.charCodeAt(i)));
+    }
+    return "return({" + arr.join("/") + "})";
+  }
+
+  // Camada 3: transforma o script inteiro em hex no formato return({0xNN/0xNN/...})
+  // E embrulha no return loadstring(...) para executar
+  function layer3_hexWrap(code) {
+    let hexArray = stringToHexArray(code);
+    let hexString = hexArray.map(h => h).join("/");
+    // Código Lua que retorna um array de bytes e depois junta numa string e executa
+    const luaWrapper = `
+local bytes = {${hexString}}
+local str = ""
+for i=1,#bytes do
+  str = str .. string.char(bytes[i])
+end
+local func = loadstring(str)
+return func()
 `;
-    return wrapper;
-  };
+    return luaWrapper;
+  }
 
-  // Main obfuscation process
-  const process = (code) => {
-    if (!integrityCheck()) return;
-    const obfLevel = parseInt(document.getElementById('obfLevel').value);
-    const entropy = parseInt(document.getElementById('entropy').value);
-    const key = generateKey();
+  // Adiciona muitos if else inúteis intercalando o código para aumentar confusão
+  function layer2_addIfElseConfusion(code, junkCount, junkMult) {
+    let lines = code.split("\n");
+    let newCode = "";
+    const randHex = () => "0x" + Math.floor(Math.random() * 255).toString(16).padStart(2,"0");
 
-    // Remove comments
-    code = code.replace(/--.*$/gm, '').replace(/\s+/g, ' ').trim();
+    for(let i=0; i<lines.length; i++) {
+      newCode += lines[i] + "\n";
 
-    // Apply layers
-    code = layer1(code);
-    code = layer2(code, obfLevel, entropy);
-    code = layer3(code, key);
+      // A cada linha, adiciona um if inútil baseado em números hex
+      if (i % 2 === 0) {
+        newCode += `if ${randHex()} > 0x50 then\n  -- junk code\nelse\n  -- junk else\nend\n`;
+      }
+    }
 
-    // Syntax highlighting
+    // Acrescenta junk gerado controlado pelo usuário
+    newCode += generateJunkCode(junkCount, junkMult);
+
+    return newCode;
+  }
+
+  // Função principal que chama as camadas
+  function process(code) {
+    const junkCount = parseInt(document.getElementById("junkAmount").value);
+    const junkMult = parseInt(document.getElementById("junkMultiplier").value);
+
+    // Remove comentários para não complicar o parse (pode melhorar depois)
+    code = code.replace(/--.*$/gm, "");
+
+    // CAMADA 1: renomear e inutilizar variáveis
+    code = layer1_renameVariablesAndBreak(code);
+
+    // CAMADA 2: adicionar if/else inúteis e lixo
+    code = layer2_addIfElseConfusion(code, junkCount, junkMult);
+
+    // CAMADA 3: codificar em hex e transformar em loadstring executável
+    code = layer3_hexWrap(code);
+
+    // Retorna resultado com highlight simples
     const highlighted = code
       .replace(/(["'])(.*?)\1/g, '<span style="color:#c792ea;">$&</span>')
-      .replace(/\b(local|function|end|for|do|if|then|else|repeat|until|loadstring|return|and|or|not)\b/g, '<span style="color:#82aaff;">$1</span>')
-      .replace(/(0x[0-9a-fA-F]+)/g, '<span style="color:#ffca80;">$1</span>');
+      .replace(/\b(local|function|end|for|do|if|then|else|repeat|until|load|return|and|or|not)\b/g, '<span style="color:#82aaff;">$1</span>');
 
-    _2x = code;
-    document.getElementById('result').innerHTML = highlighted;
-    document.getElementById('loader').textContent = '✅ Obfuscado com sucesso!';
-  };
+    document.getElementById("result").innerHTML = highlighted;
+    lastObf = code;
+  }
 
-  // Exposed functions
-  window.obfuscate = () => {
-    if (document.getElementById('botCheck').value !== '') {
-      document.body.innerHTML = '<h1>Bot detectado!</h1>';
+  function obfuscate() {
+    if (document.getElementById("botCheck").value !== "") {
+      alert("Bot detectado. Ação bloqueada.");
       return;
     }
-    const code = document.getElementById('inputCode').value;
+
+    let code = document.getElementById("inputCode").value;
     if (!code.trim()) {
-      alert('Insira um código para obfuscar!');
+      alert("Cole o código!");
       return;
     }
-    document.getElementById('loader').textContent = '🔄 Obfuscando...';
-    setTimeout(() => process(code), 100);
-  };
 
-  window.copyToClipboard = () => {
-    if (!_2x) return alert('Nada para copiar!');
-    navigator.clipboard.writeText(_2x).then(() => alert('Código copiado!')).catch(() => alert('Erro ao copiar!'));
-  };
+    process(code);
+  }
 
-  window.downloadObfuscated = () => {
-    if (!_2x) return alert('Nada para baixar!');
-    const blob = new Blob([_2x], { type: 'text/plain' });
-    const a = document.createElement('a');
+  function copyToClipboard() {
+    if (!lastObf) return alert("Nada para copiar");
+    navigator.clipboard.writeText(lastObf).then(_ => alert("Copiado!"))
+      .catch(_ => alert("Falha ao copiar"));
+  }
+
+  function downloadObfuscated() {
+    if (!lastObf) return alert("Nada para baixar");
+    const blob = new Blob([lastObf], { type: "text/plain" });
+    const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = 'kolt_ultra_obfuscated.lua';
+    a.download = "kolt_obfuscate.lua";
     a.click();
-  };
+  }
 
-  window.clearCode = () => {
-    document.getElementById('inputCode').value = '';
-    document.getElementById('result').innerHTML = '';
-    _2x = '';
-    document.getElementById('loader').textContent = '🔄 Inicializando...';
-  };
+  function clearCode() {
+    document.getElementById("inputCode").value = "";
+    document.getElementById("result").innerHTML = "";
+    lastObf = "";
+  }
 
-  // Initialize
-  (async () => {
-    if (!integrityCheck()) return;
-    await new Promise(r => setTimeout(r, 500));
-    document.getElementById('loader').textContent = '✅ Sistema carregado!';
-  })();
-})();
+  loadApi();
 </script>
+
 </body>
 </html>
