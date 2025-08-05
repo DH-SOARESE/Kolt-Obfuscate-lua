@@ -4,16 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kolt Obfuscate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color-start: #0a0a0a;
             --bg-color-end: #1a1a2e;
-            --glass-bg: rgba(30, 30, 40, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(30, 30, 40, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.15);
             --text-color: #e0e0e0;
-            --header-color: #64b5f6;
-            --input-bg: #212121;
-            --input-border: #424242;
+            --header-color: #4db6ac;
+            --input-bg: #25252d;
+            --input-border: #3a3a44;
             --input-text-color: #b0bec5;
             --obf-btn: #0288d1;
             --obf-btn-hover: #0277bd;
@@ -28,12 +29,15 @@
             --syntax-string: #ce93d8;
             --syntax-keyword: #4fc3f7;
             --syntax-comment: #78909c;
-            --meteor-gradient: linear-gradient(45deg, #ff8a65, #f06292, #9575cd);
-            --meteor-shadow: #ff6e40;
-            --light-bg-start: #f5f5f5;
-            --light-bg-end: #e0e0e0;
-            --light-text: #212121;
-            --light-glass-bg: rgba(255, 255, 255, 0.7);
+            --meteor-gradient: linear-gradient(45deg, #4db6ac, #81c784, #ff8a65);
+            --meteor-shadow: #4db6ac;
+            --light-bg-start: #f5f7fa;
+            --light-bg-end: #e0e5ec;
+            --light-text: #1a1a1a;
+            --light-glass-bg: rgba(255, 255, 255, 0.85);
+            --accent-color: #4db6ac;
+            --error-color: #ff6b6b;
+            --success-color: #4caf50;
         }
 
         * {
@@ -43,20 +47,17 @@
         }
 
         body {
-            background: linear-gradient(to bottom, var(--bg-color-start), var(--bg-color-end));
-            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end));
+            font-family: 'Inter', sans-serif;
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         body.light-mode {
-            background: linear-gradient(to bottom, var(--light-bg-start), var(--light-bg-end));
+            background: linear-gradient(135deg, var(--light-bg-start), var(--light-bg-end));
             color: var(--light-text);
         }
 
@@ -64,11 +65,11 @@
             background: var(--light-glass-bg);
         }
 
-        body.light-mode textarea,
+        body.light-mode .code-editor,
         body.light-mode #result {
             background: #ffffff;
-            color: #212121;
-            border-color: #bdbdbd;
+            color: #1a1a1a;
+            border-color: #d1d5db;
         }
 
         .loading-screen {
@@ -79,10 +80,10 @@
             height: 100%;
             background: var(--bg-color-start);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            z-index: 100;
+            z-index: 1000;
             transition: opacity 0.5s ease-in-out;
             opacity: 1;
         }
@@ -93,8 +94,8 @@
         }
 
         .loading-spinner {
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--header-color);
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--accent-color);
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -102,61 +103,72 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         .loading-text {
             margin-top: 20px;
-            font-size: 1.3rem;
-            color: var(--header-color);
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--accent-color);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .main-content {
             display: none;
             width: 100%;
-            max-width: 1000px;
-            padding: 30px 15px;
+            max-width: 1200px;
+            padding: 40px 20px;
+            margin: 0 auto;
             position: relative;
             z-index: 2;
         }
 
         .glass {
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            transition: background 0.3s ease;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
 
         h1 {
             color: var(--header-color);
             text-align: center;
-            margin-bottom: 25px;
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            letter-spacing: 1px;
+            margin-bottom: 32px;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        textarea, #result {
+        .code-editor {
             width: 100%;
-            height: 300px;
+            min-height: 350px;
             background: var(--input-bg);
             border: 1px solid var(--input-border);
             border-radius: 12px;
-            padding: 15px;
+            padding: 16px;
             font-size: 14px;
             color: var(--input-text-color);
             resize: vertical;
             font-family: 'JetBrains Mono', monospace;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            line-height: 1.6;
         }
 
-        textarea:focus, #result:focus {
+        .code-editor:focus, #result:focus {
             outline: none;
-            border-color: var(--header-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(77, 182, 172, 0.2);
         }
 
         .honeypot {
@@ -169,130 +181,140 @@
 
         .button-scroll {
             overflow-x: auto;
-            margin-top: 15px;
+            margin: 20px 0;
             scrollbar-width: thin;
-            scrollbar-color: #666 transparent;
+            scrollbar-color: var(--accent-color) transparent;
         }
 
         .button-row {
             display: flex;
-            gap: 10px;
-            padding-bottom: 10px;
+            gap: 12px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         button {
-            padding: 12px 20px;
+            padding: 12px 24px;
             font-size: 14px;
+            font-weight: 600;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            white-space: nowrap;
             transition: all 0.3s ease;
-            min-width: 120px;
+            min-width: 140px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        button.obf {
-            background: var(--obf-btn);
-            color: #fff;
+        button:active {
+            transform: translateY(0);
         }
 
-        button.obf:hover {
-            background: var(--obf-btn-hover);
-        }
-
-        button.copy {
-            background: var(--copy-btn);
-            color: #000;
-        }
-
-        button.copy:hover {
-            background: var(--copy-btn-hover);
-        }
-
-        button.download {
-            background: var(--download-btn);
-            color: #fff;
-        }
-
-        button.download:hover {
-            background: var(--download-btn-hover);
-        }
-
-        button.clear {
-            background: var(--clear-btn);
-            color: #fff;
-        }
-
-        button.clear:hover {
-            background: var(--clear-btn-hover);
-        }
-
-        button.preview {
-            background: var(--preview-btn);
-            color: #fff;
-        }
-
-        button.preview:hover {
-            background: var(--preview-btn-hover);
-        }
+        button.obf { background: var(--obf-btn); color: #fff; }
+        button.obf:hover { background: var(--obf-btn-hover); }
+        button.copy { background: var(--copy-btn); color: #000; }
+        button.copy:hover { background: var(--copy-btn-hover); }
+        button.download { background: var(--download-btn); color: #fff; }
+        button.download:hover { background: var(--download-btn-hover); }
+        button.clear { background: var(--clear-btn); color: #fff; }
+        button.clear:hover { background: var(--clear-btn-hover); }
+        button.preview { background: var(--preview-btn); color: #fff; }
+        button.preview:hover { background: var(--preview-btn-hover); }
+        button#advanced-btn { background: #7e57c2; color: #fff; }
+        button#advanced-btn:hover { background: #6d4ba8; }
 
         .theme-toggle {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            padding: 10px;
-            background: var(--obf-btn);
+            padding: 12px;
+            background: var(--accent-color);
             color: #fff;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(360deg);
         }
 
         #result {
-            min-height: 200px;
-            margin-top: 20px;
-            overflow: auto;
+            min-height: 300px;
+            margin-top: 24px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--input-text-color);
             white-space: pre-wrap;
-            word-wrap: break-word;
+            overflow: auto;
+            line-height: 1.6;
         }
 
         .options {
-            margin: 20px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            margin: 24px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
         }
 
         .option-group {
-            flex: 1;
-            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .options label {
-            display: block;
-            margin-bottom: 5px;
             font-size: 14px;
             font-weight: 600;
+            color: var(--text-color);
         }
 
-        .options select, .options input[type=range] {
+        .options select,
+        .options input[type=range] {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             background: var(--input-bg);
             color: var(--input-text-color);
             border: 1px solid var(--input-border);
-            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .options select:focus,
+        .options input[type=range]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .advanced-options {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .advanced-options.active {
+            display: block;
         }
 
         .file-upload {
-            margin: 15px 0;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .file-upload input[type=file] {
@@ -300,92 +322,131 @@
         }
 
         .file-upload label {
-            display: inline-block;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: var(--obf-btn);
             color: #fff;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .file-upload label:hover {
             background: var(--obf-btn-hover);
+            transform: translateY(-2px);
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: var(--input-text-color);
         }
 
         .meteor {
             position: fixed;
             top: -60px;
             left: -60px;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: var(--meteor-gradient);
             border-radius: 50%;
-            animation: meteorFall 5s linear infinite;
-            box-shadow: 0 0 10px var(--meteor-shadow);
+            animation: meteorFall 4s linear infinite;
+            box-shadow: 0 0 15px var(--meteor-shadow);
             z-index: 0;
         }
 
         @keyframes meteorFall {
-            0% {
-                transform: translate(0, 0) rotate(45deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(1500px, 1200px) rotate(45deg);
-                opacity: 0;
-            }
+            0% { transform: translate(0, 0) rotate(45deg); opacity: 1; }
+            100% { transform: translate(2000px, 1500px) rotate(45deg); opacity: 0; }
         }
 
         .bot-challenge {
-            margin: 15px 0;
-            padding: 15px;
+            margin: 20px 0;
+            padding: 16px;
             background: var(--input-bg);
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid var(--input-border);
-            text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 14px;
         }
 
         .bot-challenge input {
-            width: 60px;
+            width: 80px;
+            padding: 8px;
             text-align: center;
             background: var(--input-bg);
             color: var(--input-text-color);
             border: 1px solid var(--input-border);
-            border-radius: 6px;
-            padding: 5px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+            color: #fff;
+        }
+
+        .notification.error {
+            background: var(--error-color);
+            color: #fff;
+        }
+
+        .notification.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #666;
-            border-radius: 4px;
+            background: var(--accent-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
         }
 
         @media (max-width: 768px) {
             .main-content {
-                padding: 20px 10px;
+                padding: 20px 12px;
             }
 
             .glass {
-                padding: 20px;
+                padding: 24px;
             }
 
             .button-row {
                 flex-direction: column;
-                align-items: stretch;
+                gap: 8px;
             }
 
             button {
                 width: 100%;
+            }
+
+            h1 {
+                font-size: clamp(1.8rem, 4vw, 2.2rem);
             }
         }
     </style>
@@ -393,12 +454,14 @@
 <body>
     <div class="loading-screen" id="loading-screen">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Carregando Kolt Obfuscate...</div>
+        <div class="loading-text">Inicializando Kolt Obfuscate...</div>
     </div>
 
     <div class="main-content" id="main-content">
         <div class="meteor"></div>
-        <button class="theme-toggle" onclick="toggleTheme()">🌙 Alternar Tema</button>
+        <div class="meteor" style="animation-delay: -1s;"></div>
+        <div class="meteor" style="animation-delay: -2s;"></div>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
         <div class="glass">
             <h1>Kolt Obfuscate</h1>
 
@@ -406,8 +469,9 @@
             <div class="file-upload">
                 <label for="fileInput">📤 Carregar Script Lua</label>
                 <input type="file" id="fileInput" accept=".lua,.txt" />
+                <span class="file-name" id="fileName">Nenhum arquivo selecionado</span>
             </div>
-            <textarea id="inputCode" placeholder="Cole seu script Lua aqui..."></textarea>
+            <textarea class="code-editor" id="inputCode" placeholder="Cole seu script Lua aqui..."></textarea>
 
             <div class="bot-challenge" id="bot-challenge">
                 <span id="challenge-text"></span>
@@ -421,15 +485,40 @@
                         <option value="light">Leve</option>
                         <option value="medium" selected>Médio</option>
                         <option value="heavy">Pesado</option>
+                        <option value="extreme">Extremo</option>
                     </select>
                 </div>
                 <div class="option-group">
                     <label for="junkAmount">Quantidade de Lixo: <span id="junkVal">3</span></label>
-                    <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="junkVal.textContent = this.value" />
+                    <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="updateSliderValue('junkVal', this.value)" />
                 </div>
                 <div class="option-group">
                     <label for="junkMultiplier">Multiplicador de Lixo: <span id="multiVal">1</span></label>
-                    <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="multiVal.textContent = this.value" />
+                    <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="updateSliderValue('multiVal', this.value)" />
+                </div>
+                <div class="option-group">
+                    <label for="compressionLevel">Nível de Compressão</label>
+                    <select id="compressionLevel">
+                        <option value="none">Nenhum</option>
+                        <option value="basic">Básico</option>
+                        <option value="advanced">Avançado</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="advanced-btn" onclick="toggleAdvancedOptions()">Opções Avançadas</button>
+            <div class="advanced-options" id="advanced-options">
+                <div class="option-group">
+                    <label><input type="checkbox" id="encryptStrings" checked> Criptografar Strings</label>
+                </div>
+                <div class="option-group">
+                    <label><input type="checkbox" id="controlFlow" checked> Ofuscação de Fluxo de Controle</label>
+                </div>
+                <div class="option-group">
+                    <label><input type="checkbox" id="numberObf"> Ofuscação de Números</label>
+                </div>
+                <div class="option-group">
+                    <label><input type="checkbox" id="antiTamper"> Proteção Anti-Tamper</label>
                 </div>
             </div>
 
@@ -447,23 +536,37 @@
         </div>
     </div>
 
+    <div class="notification" id="notification"></div>
+
     <script>
         let lastObf = "";
         let challengeAnswer = 0;
 
-        // Carrega preferências do usuário
         window.onload = async () => {
             loadPreferences();
             await initApp();
         };
 
         async function initApp() {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('main-content').style.display = 'flex';
             document.body.style.alignItems = 'flex-start';
             generateChallenge();
             setupFileUpload();
+        }
+
+        function updateSliderValue(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} active`;
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
         }
 
         function generateChallenge() {
@@ -482,27 +585,29 @@
 
         function setupFileUpload() {
             const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
+                    fileName.textContent = file.name;
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         document.getElementById('inputCode').value = event.target.result;
                     };
                     reader.readAsText(file);
+                } else {
+                    fileName.textContent = 'Nenhum arquivo selecionado';
                 }
             });
         }
 
         function validateLua(code) {
-            // Simula validação de sintaxe Lua (em produção, usar uma biblioteca como Luau)
             try {
-                // Verifica palavras-chave básicas e estrutura
-                const keywords = ['local', 'function', 'if', 'then', 'else', 'end', 'return'];
+                const keywords = ['local', 'function', 'if', 'then', 'else', 'end', 'return', 'while', 'for'];
                 const lines = code.split('\n');
                 let valid = false;
                 for (let line of lines) {
-                    if (keywords.some(kw => line.includes(kw))) {
+                    if (keywords.some(kw => line.trim().startsWith(kw))) {
                         valid = true;
                         break;
                     }
@@ -513,14 +618,72 @@
             }
         }
 
-        function obfuscateCode(code, level, junkAmount, junkMultiplier) {
-            // Simulação de obfuscação para LuaU (Roblox-compatible)
-            const variableMap = {};
-            let obfuscated = code;
+        function compressCode(code, level) {
+            if (level === 'none') return code;
+            let compressed = code;
+            if (level === 'basic') {
+                compressed = compressed.replace(/\s+/g, ' ').trim();
+            } else if (level === 'advanced') {
+                compressed = compressed
+                    .replace(/--.*$/gm, '') // Remove comentários
+                    .replace(/\s+/g, ' ')   // Reduz espaços
+                    .replace(/; /g, ';')    // Remove espaços após ponto e vírgula
+                    .trim();
+            }
+            return compressed;
+        }
 
-            // 1. Renomear variáveis
-            const variableRegex = /\b(local\s+)?(\w+)\s*=/g;
+        function encryptString(str) {
+            // Simulação de criptografia mais robusta
+            const key = Math.random().toString(36).slice(2, 10);
+            const encrypted = str.split('').map((c, i) => {
+                return String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length));
+            }).join('');
+            return `decrypt("${btoa(encrypted)}", "${key}")`;
+        }
+
+        function controlFlowObfuscation(code) {
+            // Adiciona estruturas de controle falsas
+            const lines = code.split('\n');
+            const newLines = [];
+            let ifCount = 0;
+            lines.forEach(line => {
+                newLines.push(line);
+                if (Math.random() < 0.3) {
+                    newLines.push(`if _obf${ifCount++} == nil then _obf${ifCount} = math.random() end`);
+                }
+            });
+            return newLines.join('\n');
+        }
+
+        function numberObfuscation(code) {
+            return code.replace(/\b(\d+)\b/g, (match, num) => {
+                const n = parseInt(num);
+                const op = Math.random() > 0.5 ? '+' : '-';
+                const offset = Math.floor(Math.random() * 100) + 1;
+                return op === '+' 
+                    ? `(${n - offset} ${op} ${offset})`
+                    : `(${n + offset} ${op} ${offset})`;
+            });
+        }
+
+        function antiTamper(code) {
+            const hash = btoa(code).slice(0, 8);
+            return `--[ANTI-TAMPER:${hash}]--\n${code}\n--[END:${hash}]--`;
+        }
+
+        function obfuscateCode(code, level, junkAmount, junkMultiplier, options) {
+            let obfuscated = code;
+            const variableMap = {};
             let varCounter = 0;
+
+            // 1. Compressão inicial
+            if (options.compressionLevel !== 'none') {
+                obfuscated = compressCode(obfuscated, options.compressionLevel);
+            }
+
+            // 2. Renomear variáveis
+            const variableRegex = /\b(local\s+)?(\w+)\s*=/g;
             obfuscated = obfuscated.replace(variableRegex, (match, local, varName) => {
                 if (!variableMap[varName]) {
                     variableMap[varName] = `_v${varCounter++}_${Math.random().toString(36).slice(2, 8)}`;
@@ -528,27 +691,49 @@
                 return (local || '') + variableMap[varName] + ' =';
             });
 
-            // 2. Criptografar strings (simulação simples)
-            const stringRegex = /"([^"]*)"/g;
-            obfuscated = obfuscated.replace(stringRegex, (match, str) => {
-                if (level !== 'light') {
-                    return `loadstring(string.char(${str.split('').map(c => c.charCodeAt(0)).join(', ')}))()`;
-                }
-                return match;
-            });
+            // 3. Criptografar strings
+            if (options.encryptStrings) {
+                const stringRegex = /"([^"]*)"/g;
+                obfuscated = obfuscated.replace(stringRegex, (match, str) => {
+                    return level === 'light' ? match : encryptString(str);
+                });
+            }
 
-            // 3. Adicionar código lixo
+            // 4. Adicionar código lixo
             if (junkAmount > 0) {
                 const junkCode = [];
                 for (let i = 0; i < junkAmount * junkMultiplier; i++) {
-                    junkCode.push(`local _junk${i} = math.random(1, 100);`);
+                    const rand = Math.random();
+                    if (rand < 0.3) {
+                        junkCode.push(`local _junk${i} = math.random(1, 100);`);
+                    } else if (rand < 0.6) {
+                        junkCode.push(`local _junk${i} = string.char(math.random(65, 90));`);
+                    } else {
+                        junkCode.push(`local _junk${i} = {${Array(3).fill().map(() => Math.random()).join(',')}};`);
+                    }
                 }
                 obfuscated = `-- Kolt Obfuscate\n${junkCode.join('\n')}\n${obfuscated}`;
             }
 
-            // 4. Ofuscação pesada (simulação de bytecode ou AST scrambling)
-            if (level === 'heavy') {
-                obfuscated = `loadstring("${btoa(obfuscated).replace(/=/g, '')}")()`;
+            // 5. Ofuscação de fluxo de controle
+            if (options.controlFlow && level !== 'light') {
+                obfuscated = controlFlowObfuscation(obfuscated);
+            }
+
+            // 6. Ofuscação de números
+            if (options.numberObf && level !== 'light') {
+                obfuscated = numberObfuscation(obfuscated);
+            }
+
+            // 7. Proteção anti-tamper
+            if (options.antiTamper && level === 'extreme') {
+                obfuscated = antiTamper(obfuscated);
+            }
+
+            // 8. Ofuscação pesada/extrema
+            if (level === 'heavy' || level === 'extreme') {
+                const encoded = btoa(obfuscated).replace(/=/g, '');
+                obfuscated = `loadstring("${encoded}")()`;
             }
 
             return `-- Kolt Obfuscate (Nível: ${level})\n${obfuscated}`;
@@ -556,35 +741,43 @@
 
         async function obfuscate() {
             if (isBot()) {
-                alert("Verificação de bot falhou. Tente novamente.");
+                showNotification("Verificação de bot falhou. Tente novamente.", 'error');
                 generateChallenge();
                 return;
             }
 
             const code = document.getElementById("inputCode").value.trim();
             if (!code) {
-                alert("Por favor, insira um script Lua.");
+                showNotification("Por favor, insira um script Lua.", 'error');
                 return;
             }
 
             const validationError = validateLua(code);
             if (validationError) {
-                alert(validationError);
+                showNotification(validationError, 'error');
                 return;
             }
 
-            const level = document.getElementById("obfLevel").value;
-            const junkAmount = parseInt(document.getElementById("junkAmount").value);
-            const junkMultiplier = parseInt(document.getElementById("junkMultiplier").value);
+            const options = {
+                level: document.getElementById("obfLevel").value,
+                junkAmount: parseInt(document.getElementById("junkAmount").value),
+                junkMultiplier: parseInt(document.getElementById("junkMultiplier").value),
+                compressionLevel: document.getElementById("compressionLevel").value,
+                encryptStrings: document.getElementById("encryptStrings").checked,
+                controlFlow: document.getElementById("controlFlow").checked,
+                numberObf: document.getElementById("numberObf").checked,
+                antiTamper: document.getElementById("antiTamper").checked
+            };
 
             document.getElementById("result").textContent = "Obfuscando...";
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simula processamento
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             try {
-                lastObf = obfuscateCode(code, level, junkAmount, junkMultiplier);
+                lastObf = obfuscateCode(code, options.level, options.junkAmount, options.junkMultiplier, options);
                 document.getElementById("result").textContent = lastObf;
+                showNotification("Código ofuscado com sucesso!", 'success');
             } catch (e) {
-                alert("Erro ao ofuscar: " + e.message);
+                showNotification("Erro ao ofuscar: " + e.message, 'error');
                 document.getElementById("result").textContent = "";
             }
             savePreferences();
@@ -592,7 +785,7 @@
 
         function previewCode() {
             if (!lastObf) {
-                alert("Nada para visualizar.");
+                showNotification("Nada para visualizar.", 'error');
                 return;
             }
             const previewWindow = window.open("", "_blank");
@@ -601,49 +794,82 @@
                     <head>
                         <title>Visualização do Código</title>
                         <style>
-                            body { font-family: monospace; background: #1e1e2b; color: #e0e0e0; padding: 20px; }
-                            pre { white-space: pre-wrap; }
+                            body { 
+                                font-family: 'JetBrains Mono', monospace; 
+                                background: #1e1e2b; 
+                                color: #e0e0e0; 
+                                padding: 24px;
+                                margin: 0;
+                            }
+                            pre { 
+                                white-space: pre-wrap; 
+                                font-size: 14px; 
+                                line-height: 1.6;
+                            }
+                            .keyword { color: var(--syntax-keyword); }
+                            .string { color: var(--syntax-string); }
+                            .comment { color: var(--syntax-comment); }
                         </style>
                     </head>
-                    <body><pre>${lastObf}</pre></body>
+                    <body><pre>${highlightSyntax(lastObf)}</pre></body>
                 </html>
             `);
         }
 
+        function highlightSyntax(code) {
+            return code
+                .replace(/\b(local|function|if|then|else|end|return|while|for)\b/g, '<span class="keyword">$1</span>')
+                .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
+                .replace(/--[^\n]*/g, '<span class="comment">$&</span>');
+        }
+
         function copyToClipboard() {
             if (!lastObf) {
-                alert("Nada para copiar.");
+                showNotification("Nada para copiar.", 'error');
                 return;
             }
             navigator.clipboard.writeText(lastObf)
-                .then(() => alert("Código copiado!"))
-                .catch(() => alert("Falha ao copiar."));
+                .then(() => showNotification("Código copiado para a área de transferência!", 'success'))
+                .catch(() => showNotification("Falha ao copiar.", 'error'));
         }
 
         function downloadObfuscated() {
             if (!lastObf) {
-                alert("Nada para baixar.");
+                showNotification("Nada para baixar.", 'error');
                 return;
             }
             const blob = new Blob([lastObf], { type: "text/plain" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = "kolt_obfuscated.lua";
+            a.download = `kolt_obfuscated_${new Date().toISOString().slice(0,10)}.lua`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            showNotification("Download iniciado!", 'success');
         }
 
         function clearCode() {
             document.getElementById("inputCode").value = "";
             document.getElementById("result").textContent = "";
+            document.getElementById("fileName").textContent = "Nenhum arquivo selecionado";
             lastObf = "";
             generateChallenge();
+            showNotification("Campos limpos!", 'success');
         }
 
         function toggleTheme() {
             document.body.classList.toggle("light-mode");
+            const themeIcon = document.querySelector('.theme-toggle');
+            themeIcon.textContent = document.body.classList.contains('light-mode') ? '🌞' : '🌙';
             savePreferences();
+        }
+
+        function toggleAdvancedOptions() {
+            const advancedOptions = document.getElementById('advanced-options');
+            const button = document.getElementById('advanced-btn');
+            advancedOptions.classList.toggle('active');
+            button.textContent = advancedOptions.classList.contains('active') ? 
+                'Ocultar Opções Avançadas' : 'Opções Avançadas';
         }
 
         function savePreferences() {
@@ -651,17 +877,28 @@
             localStorage.setItem("obfLevel", document.getElementById("obfLevel").value);
             localStorage.setItem("junkAmount", document.getElementById("junkAmount").value);
             localStorage.setItem("junkMultiplier", document.getElementById("junkMultiplier").value);
+            localStorage.setItem("compressionLevel", document.getElementById("compressionLevel").value);
+            localStorage.setItem("encryptStrings", document.getElementById("encryptStrings").checked);
+            localStorage.setItem("controlFlow", document.getElementById("controlFlow").checked);
+            localStorage.setItem("numberObf", document.getElementById("numberObf").checked);
+            localStorage.setItem("antiTamper", document.getElementById("antiTamper").checked);
         }
 
         function loadPreferences() {
             if (localStorage.getItem("theme") === "light") {
                 document.body.classList.add("light-mode");
+                document.querySelector('.theme-toggle').textContent = '🌞';
             }
             document.getElementById("obfLevel").value = localStorage.getItem("obfLevel") || "medium";
             document.getElementById("junkAmount").value = localStorage.getItem("junkAmount") || 3;
             document.getElementById("junkMultiplier").value = localStorage.getItem("junkMultiplier") || 1;
-            document.getElementById("junkVal").textContent = document.getElementById("junkAmount").value;
-            document.getElementById("multiVal").textContent = document.getElementById("junkMultiplier").value;
+            document.getElementById("compressionLevel").value = localStorage.getItem("compressionLevel") || "none";
+            document.getElementById("encryptStrings").checked = localStorage.getItem("encryptStrings") !== 'false';
+            document.getElementById("controlFlow").checked = localStorage.getItem("controlFlow") !== 'false';
+            document.getElementById("numberObf").checked = localStorage.getItem("numberObf") === 'true';
+            document.getElementById("antiTamper").checked = localStorage.getItem("antiTamper") === 'true';
+            updateSliderValue('junkVal', document.getElementById("junkAmount").value);
+            updateSliderValue('multiVal', document.getElementById("junkMultiplier").value);
         }
     </script>
 </body>
