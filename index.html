@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kolt Ultra Obfuscator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0a0a0a, #12121a);
+      font-family: 'Courier New', monospace;
+      color: #d0d8e0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 30px 15px;
+      overflow: hidden;
+      position: relative;
+    }
+    .glass {
+      backdrop-filter: blur(15px);
+      background: rgba(25, 25, 35, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 1000px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 10;
+    }
+    h1 {
+      color: #5ab9ff;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      background: #1a1a25;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 15px;
+      color: #b0b8c0;
+      resize: vertical;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      transition: border-color 0.3s;
+    }
+    textarea:focus {
+      border-color: #5ab9ff;
+      outline: none;
+    }
+    input[type=text].honeypot {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .button-scroll {
+      overflow-x: auto;
+      margin-top: 15px;
+      scrollbar-width: thin;
+    }
+    .button-row {
+      display: flex;
+      gap: 15px;
+      min-width: 700px;
+      width: max-content;
+      padding-bottom: 12px;
+    }
+    button {
+      padding: 12px 28px;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+    button.obf { background: #3aa1e0; color: #fff; }
+    button.obf:hover { background: #2a91d0; transform: scale(1.05); }
+    button.copy { background: #e8a923; color: #fff; }
+    button.copy:hover { background: #d89a13; transform: scale(1.05); }
+    button.download { background: #00a843; color: #fff; }
+    button.download:hover { background: #009833; transform: scale(1.05); }
+    button.clear { background: #d73835; color: #fff; }
+    button.clear:hover { background: #c72825; transform: scale(1.05); }
+    #result {
+      background: #1a1a25;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 18px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 13px;
+      min-height: 180px;
+      margin-top: 20px;
+      color: #b0b8c0;
+      font-family: 'Courier New', monospace;
+    }
+    .loader {
+      text-align: center;
+      color: #6a6a75;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .options {
+      margin: 20px 0;
+    }
+    .options label {
+      display: block;
+      margin: 12px 0 5px;
+      font-size: 14px;
+      color: #a0a8b0;
+    }
+    .options input[type=range] {
+      width: 100%;
+      accent-color: #5ab9ff;
+    }
+    .meteor {
+      position: fixed;
+      top: -50px;
+      left: -50px;
+      width: 10px;
+      height: 10px;
+      background: linear-gradient(45deg, #ffca80, #ff7043, #d81b60);
+      border-radius: 50%;
+      animation: meteorFall 3.5s linear infinite;
+      box-shadow: 0 0 10px #ff8a65;
+      z-index: 0;
+    }
+    @keyframes meteorFall {
+      0% { transform: translate(0, 0) rotate(45deg); opacity: 0.9; }
+      100% { transform: translate(1500px, 1200px) rotate(45deg); opacity: 0; }
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4a4a55;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1a1a25;
+    }
+  </style>
+</head>
+<body>
+  <div class="meteor" id="meteor1"></div>
+  <div class="meteor" id="meteor2" style="animation-delay: 1s;"></div>
+
+  <div class="glass">
+    <h1>Kolt Ultra Obfuscator</h1>
+    <div class="loader" id="loader">🔄 Inicializando...</div>
+    <input type="text" class="honeypot" id="botCheck" autocomplete="off" aria-hidden="true">
+    <textarea id="inputCode" placeholder="Insira seu script Lua aqui..." spellcheck="false"></textarea>
+    <div class="button-scroll">
+      <div class="button-row">
+        <button class="obf" onclick="obfuscate()">Obfuscar</button>
+        <button class="copy" onclick="copyToClipboard()">Copiar</button>
+        <button class="download" onclick="downloadObfuscated()">Baixar</button>
+        <button class="clear" onclick="clearCode()">Limpar</button>
+      </div>
+    </div>
+    <div class="options">
+      <label for="obfLevel">Nível de Obfuscação: <span id="obfLevelVal">3</span></label>
+      <input type="range" min="1" max="10" value="3" id="obfLevel" oninput="obfLevelVal.textContent = this.value">
+      <label for="entropy">Entropia: <span id="entropyVal">1</span></label>
+      <input type="range" min="1" max="5" value="1" id="entropy" oninput="entropyVal.textContent = this.value">
+    </div>
+    <div id="result"></div>
+  </div>
+
+<script>
+(function() {
+  const _0x = (s) => btoa(s).split('').reverse().join('');
+  const _1x = (s) => atob(s.split('').reverse().join(''));
+  let _2x = '';
+
+  // Anti-tampering
+  const integrityCheck = () => {
+    const scripts = document.getElementsByTagName('script');
+    if (scripts.length !== 1 || scripts[0].innerHTML.length < 1000) {
+      document.body.innerHTML = '<h1>Integridade comprometida!</h1>';
+      return false;
+    }
+    return true;
+  };
+
+  // Anti-debugging
+  (function antiDebug() {
+    const start = performance.now();
+    debugger;
+    if (performance.now() - start > 100) {
+      document.body.innerHTML = '<h1>Debug detectado!</h1>';
+      throw new Error('Anti-debug triggered');
+    }
+  })();
+
+  // Dynamic key for string encryption
+  const generateKey = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let key = '';
+    for (let i = 0; i < 16; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
+    return key;
+  };
+
+  // String encryption (XOR-based)
+  const encryptString = (str, key) => {
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+      result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return btoa(result);
+  };
+
+  // String decryption
+  const decryptString = (enc, key) => {
+    const dec = atob(enc);
+    let result = '';
+    for (let i = 0; i < dec.length; i++) {
+      result += String.fromCharCode(dec.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+  };
+
+  // Custom encoding (mix of hex and base64)
+  const customEncode = (str) => {
+    const hex = Array.from(str).map(c => '0x' + c.charCodeAt(0).toString(16).padStart(2, '0')).join(':');
+    return _0x(hex);
+  };
+
+  // Custom decoding
+  const customDecode = (enc) => {
+    const hex = _1x(enc).split(':').map(h => String.fromCharCode(parseInt(h, 16))).join('');
+    return hex;
+  };
+
+  // Generate polymorphic variable names
+  const generatePolyVar = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nums = '0123456789';
+    let name = '_';
+    for (let i = 0; i < 8; i++) {
+      name += Math.random() > 0.5 ? chars.charAt(Math.floor(Math.random() * chars.length)) : nums.charAt(Math.floor(Math.random() * nums.length));
+    }
+    return name;
+  };
+
+  // Control flow flattening
+  const flattenControlFlow = (code) => {
+    const lines = code.split('\n');
+    const dispatch = generatePolyVar();
+    let flatCode = `local ${dispatch} = 0; while true do\n`;
+    lines.forEach((line, i) => {
+      flatCode += `if ${dispatch} == ${i} then ${line}\n${dispatch} = ${dispatch} + 1;\nend\n`;
+    });
+    flatCode += 'if ' + dispatch + ' >= ' + lines.length + ' then break end\nend';
+    return flatCode;
+  };
+
+  // Generate junk code with dynamic complexity
+  const generateJunk = (count, mult) => {
+    let junk = [];
+    const randHex = () => '0x' + Math.floor(Math.random() * 0xFFFF).toString(16).padStart(4, '0');
+    for (let i = 0; i < count; i++) {
+      for (let j = 0; j < mult; j++) {
+        const varName = generatePolyVar();
+        junk.push(`
+local ${varName} = ${randHex()};
+if ${varName} % 0x${Math.floor(Math.random() * 0xFF).toString(16)} > 0x10 then
+  ${varName} = ${varName} * 0x${Math.floor(Math.random() * 0xFF).toString(16)};
+else
+  ${varName} = ${varName} - 0x01;
+end`);
+      }
+    }
+    return junk.join('\n');
+  };
+
+  // Layer 1: Rename variables and split
+  const layer1 = (code) => {
+    let vars = [];
+    const regexLocal = /local\s+([A-Za-z_]\w*)/g;
+    let match;
+    while ((match = regexLocal.exec(code)) !== null) {
+      vars.push(match[1]);
+    }
+    const map = {};
+    vars.forEach(v => {
+      map[v] = [generatePolyVar(), generatePolyVar()];
+    });
+    for (let v of vars) {
+      const [p1, p2] = map[v];
+      code = code.replace(new RegExp(`local\\s+${v}\\b`, 'g'), `local ${p1}, ${p2}`);
+      code = code.replace(new RegExp(`\\b${v}\\b`, 'g'), `(${p1}..${p2})`);
+    }
+    return code;
+  };
+
+  // Layer 2: Add junk and control flow obfuscation
+  const layer2 = (code, obfLevel, entropy) => {
+    code = flattenControlFlow(code);
+    code += '\n' + generateJunk(obfLevel, entropy);
+    return code;
+  };
+
+  // Layer 3: Multi-layer encoding
+  const layer3 = (code, key) => {
+    const enc1 = encryptString(code, key);
+    const enc2 = customEncode(enc1);
+    const wrapper = `
+local k = "${key}";
+local b = "${enc2}";
+local d = {};
+for i=1,#b:split(":") do d[i] = tonumber(b:split(":")[i], 16); end
+local s = "";
+for i=1,#d do s = s .. string.char(d[i]); end
+s = atob(s);
+local r = "";
+for i=1,#s do
+  r = r .. string.char(string.byte(s, i) ~ string.byte(k, (i-1)%#k + 1));
+end
+local f = loadstring(r);
+return f();
+`;
+    return wrapper;
+  };
+
+  // Main obfuscation process
+  const process = (code) => {
+    if (!integrityCheck()) return;
+    const obfLevel = parseInt(document.getElementById('obfLevel').value);
+    const entropy = parseInt(document.getElementById('entropy').value);
+    const key = generateKey();
+
+    // Remove comments
+    code = code.replace(/--.*$/gm, '').replace(/\s+/g, ' ').trim();
+
+    // Apply layers
+    code = layer1(code);
+    code = layer2(code, obfLevel, entropy);
+    code = layer3(code, key);
+
+    // Syntax highlighting
+    const highlighted = code
+      .replace(/(["'])(.*?)\1/g, '<span style="color:#c792ea;">$&</span>')
+      .replace(/\b(local|function|end|for|do|if|then|else|repeat|until|loadstring|return|and|or|not)\b/g, '<span style="color:#82aaff;">$1</span>')
+      .replace(/(0x[0-9a-fA-F]+)/g, '<span style="color:#ffca80;">$1</span>');
+
+    _2x = code;
+    document.getElementById('result').innerHTML = highlighted;
+    document.getElementById('loader').textContent = '✅ Obfuscado com sucesso!';
+  };
+
+  // Exposed functions
+  window.obfuscate = () => {
+    if (document.getElementById('botCheck').value !== '') {
+      document.body.innerHTML = '<h1>Bot detectado!</h1>';
+      return;
+    }
+    const code = document.getElementById('inputCode').value;
+    if (!code.trim()) {
+      alert('Insira um código para obfuscar!');
+      return;
+    }
+    document.getElementById('loader').textContent = '🔄 Obfuscando...';
+    setTimeout(() => process(code), 100);
+  };
+
+  window.copyToClipboard = () => {
+    if (!_2x) return alert('Nada para copiar!');
+    navigator.clipboard.writeText(_2x).then(() => alert('Código copiado!')).catch(() => alert('Erro ao copiar!'));
+  };
+
+  window.downloadObfuscated = () => {
+    if (!_2x) return alert('Nada para baixar!');
+    const blob = new Blob([_2x], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kolt_ultra_obfuscated.lua';
+    a.click();
+  };
+
+  window.clearCode = () => {
+    document.getElementById('inputCode').value = '';
+    document.getElementById('result').innerHTML = '';
+    _2x = '';
+    document.getElementById('loader').textContent = '🔄 Inicializando...';
+  };
+
+  // Initialize
+  (async () => {
+    if (!integrityCheck()) return;
+    await new Promise(r => setTimeout(r, 500));
+    document.getElementById('loader').textContent = '✅ Sistema carregado!';
+  })();
+})();
+</script>
+</body>
+</html>
