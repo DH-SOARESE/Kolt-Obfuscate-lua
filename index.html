@@ -1,45 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kolt Obfuscate v2</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kolt Obfuscate - LuaU</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
         :root {
-            --bg-color-start: #0a0a0a;
-            --bg-color-end: #1a1a2e;
-            --glass-bg: rgba(30, 30, 40, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --text-color: #e0e0e0;
-            --header-color: #4db6ac;
-            --input-bg: #25252d;
-            --input-border: #3a3a44;
-            --input-text-color: #b0bec5;
-            --obf-btn: #0288d1;
-            --obf-btn-hover: #0277bd;
-            --copy-btn: #fbc02d;
-            --copy-btn-hover: #f9a825;
-            --download-btn: #00c853;
-            --download-btn-hover: #009624;
-            --clear-btn: #ef5350;
-            --clear-btn-hover: #e53935;
-            --preview-btn: #ab47bc;
-            --preview-btn-hover: #9c27b0;
-            --syntax-string: #ce93d8;
-            --syntax-keyword: #4fc3f7;
-            --syntax-comment: #78909c;
-            --syntax-number: #ffca28;
-            --syntax-operator: #ff7043;
-            --meteor-gradient: linear-gradient(45deg, #4db6ac, #81c784, #ff8a65);
-            --meteor-shadow: #4db6ac;
-            --light-bg-start: #f5f7fa;
-            --light-bg-end: #e0e5ec;
-            --light-text: #1a1a1a;
-            --light-glass-bg: rgba(255, 255, 255, 0.85);
-            --accent-color: #4db6ac;
-            --error-color: #ff6b6b;
-            --success-color: #4caf50;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79b8ff;
+            --success: #238636;
+            --danger: #da3633;
+            --warning: #d29922;
         }
 
         * {
@@ -49,981 +28,515 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end));
             font-family: 'Inter', sans-serif;
-            color: var(--text-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        .code-editor, #result {
-            user-select: text;
-        }
-
-        body.light-mode {
-            background: linear-gradient(135deg, var(--light-bg-start), var(--light-bg-end));
-            color: var(--light-text);
-        }
-
-        body.light-mode .glass {
-            background: var(--light-glass-bg);
-        }
-
-        body.light-mode .code-editor,
-        body.light-mode #result {
-            background: #ffffff;
-            color: #1a1a1a;
-            border-color: #d1d5db;
-        }
-
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color-start);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease-in-out;
-            opacity: 1;
+            padding: 24px;
+            line-height: 1.5;
         }
 
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-spinner {
-            border: 6px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--accent-color);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 20px;
-            font-size: 1.4rem;
-            font-weight: 500;
-            color: var(--accent-color);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .main-content {
-            display: none;
-            width: 100%;
-            max-width: 1200px;
-            padding: 40px 20px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
-        }
-
-        .glass {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        h1 {
-            color: var(--header-color);
-            text-align: center;
-            margin-bottom: 32px;
-            font-size: clamp(2rem, 5vw, 2.8rem);
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .code-editor {
-            width: 100%;
-            min-height: 350px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 14px;
-            color: var(--input-text-color);
-            resize: vertical;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s ease;
-            line-height: 1.6;
-        }
-
-        .code-editor:focus, #result:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(77, 182, 172, 0.2);
-        }
-
-        .honeypot {
-            position: absolute;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
-        .button-scroll {
-            overflow-x: auto;
-            margin: 20px 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) transparent;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 140px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            outline: none;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        button:focus, button:active {
-            outline: none;
-            box-shadow: none;
-            transform: none;
-        }
-
-        button.obf { background: var(--obf-btn); color: #fff; }
-        button.obf:hover { background: var(--obf-btn-hover); }
-        button.copy { background: var(--copy-btn); color: #000; }
-        button.copy:hover { background: var(--copy-btn-hover); }
-        button.download { background: var(--download-btn); color: #fff; }
-        button.download:hover { background: var(--download-btn-hover); }
-        button.clear { background: var(--clear-btn); color: #fff; }
-        button.clear:hover { background: var(--clear-btn-hover); }
-        button.preview { background: var(--preview-btn); color: #fff; }
-        button.preview:hover { background: var(--preview-btn-hover); }
-        button#advanced-btn { background: #7e57c2; color: #fff; }
-        button#advanced-btn:hover { background: #6d4ba8; }
-
-        .theme-toggle {
+        /* Loader */
+        #loader {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 8px;
-            background: var(--accent-color);
-            color: #fff;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 10;
-            transition: all 0.3s ease;
-            width: 36px;
-            height: 36px;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-primary);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 9999;
+            gap: 16px;
         }
 
-        .theme-toggle:hover {
-            transform: rotate(360deg);
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--border);
+            border-bottom-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
         }
 
-        #result {
-            min-height: 300px;
-            margin-top: 24px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: var(--input-text-color);
-            white-space: pre-wrap;
-            overflow: auto;
-            line-height: 1.6;
-            word-break: break-all;
-            max-width: 100%;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
-        .options {
-            margin: 24px 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
             gap: 24px;
         }
 
-        .option-group {
+        .header {
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 8px;
         }
 
-        .options label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-color);
+        h1 {
+            font-size: 2rem;
+            color: white;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .options select,
-        .options input[type=number] {
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            height: 500px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #editor {
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            background: var(--input-bg);
-            color: var(--input-text-color);
-            border: 1px solid var(--input-border);
-            font-size: 14px;
-            transition: all 0.3s ease;
+            height: 100%;
         }
 
-        .options select:focus,
-        .options input[type=number]:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .options input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        .options input[type=number]::-webkit-outer-spin-button,
-        .options input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .advanced-options {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-        }
-
-        .advanced-options.active {
-            display: block;
-        }
-
-        .file-upload {
-            margin: 20px 0;
+        /* Botões */
+        .buttons-container {
             display: flex;
-            align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .file-upload input[type=file] {
-            display: none;
-        }
-
-        .file-upload label {
-            padding: 12px 24px;
-            background: var(--obf-btn);
-            color: #fff;
-            border-radius: 8px;
+        .btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .file-upload label:hover {
-            background: var(--obf-btn-hover);
-            transform: translateY(-2px);
-        }
-
-        .file-name {
-            font-size: 14px;
-            color: var(--input-text-color);
-        }
-
-        .meteor {
-            position: fixed;
-            top: -60px;
-            left: -60px;
-            width: 12px;
-            height: 12px;
-            background: var(--meteor-gradient);
-            border-radius: 50%;
-            animation: meteorFall 4s linear infinite;
-            box-shadow: 0 0 15px var(--meteor-shadow);
-            z-index: 0;
-        }
-
-        @keyframes meteorFall {
-            0% { transform: translate(0, 0) rotate(45deg); opacity: 1; }
-            100% { transform: translate(2000px, 1500px) rotate(45deg); opacity: 0; }
-        }
-
-        .bot-challenge {
-            margin: 20px 0;
-            padding: 16px;
-            background: var(--input-bg);
-            border-radius: 12px;
-            border: 1px solid var(--input-border);
+            font-weight: 500;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 14px;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
         }
 
-        .bot-challenge input {
-            width: 80px;
-            padding: 8px;
-            text-align: center;
-            background: var(--input-bg);
-            color: var(--input-text-color);
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
+        .btn:hover {
+            background: #30363d;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .notification {
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Toast */
+        #toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             padding: 12px 24px;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             opacity: 0;
-            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
         }
 
-        .notification.success {
-            background: var(--success-color);
-            color: #fff;
-        }
-
-        .notification.error {
-            background: var(--error-color);
-            color: #fff;
-        }
-
-        .notification.active {
+        #toast.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(-8px);
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+        .toast-icon {
+            width: 16px;
+            height: 16px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 5px;
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
+        .stat-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.7;
+        }
+
+        /* Responsividade */
         @media (max-width: 768px) {
-            .main-content {
-                padding: 20px 12px;
-            }
-
-            .glass {
-                padding: 24px;
-            }
-
-            .button-row {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            button {
-                width: 100%;
+            .container {
+                padding: 20px;
             }
 
             h1 {
-                font-size: clamp(1.8rem, 4vw, 2.2rem);
+                font-size: 1.6rem;
+            }
+
+            .editor-container {
+                height: 400px;
+            }
+
+            .buttons-container {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            .editor-container {
+                height: 350px;
+            }
+
+            .buttons-container {
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading-screen" id="loading-screen">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Inicializando Kolt Obfuscate v2...</div>
+    <div id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Carregando Kolt Obfuscate...</div>
     </div>
+    
+    <div class="container" style="display:none;" id="mainContent">
+        <div class="header">
+            <h1>Kolt Obfuscate</h1>
+            <div class="subtitle">Obfuscador avançado para scripts LuaU</div>
+        </div>
 
-    <div class="main-content" id="main-content">
-        <div class="meteor"></div>
-        <div class="meteor" style="animation-delay: -1s;"></div>
-        <div class="meteor" style="animation-delay: -2s;"></div>
-        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-        <div class="glass">
-            <h1>Kolt Obfuscate v2</h1>
+        <div class="editor-container">
+            <div id="editor"></div>
+        </div>
 
-            <input type="text" class="honeypot" id="botCheck" autocomplete="off" />
-            <div class="file-upload">
-                <label for="fileInput">📤 Carregar Script Lua</label>
-                <input type="file" id="fileInput" accept=".lua,.txt" />
-                <span class="file-name" id="fileName">Nenhum arquivo selecionado</span>
+        <div class="stats">
+            <div class="stat">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <span id="lineCount">0 linhas</span>
             </div>
-            <textarea class="code-editor" id="inputCode" placeholder='print("Hello World!")'></textarea>
-
-            <div class="bot-challenge" id="bot-challenge">
-                <span id="challenge-text"></span>
-                <input type="number" id="challenge-input" placeholder="?" />
+            <div class="stat">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                </svg>
+                <span id="charCount">0 caracteres</span>
             </div>
+        </div>
 
-            <div class="options">
-                <div class="option-group">
-                    <label for="obfLevel">Nível de Obfuscação</label>
-                    <select id="obfLevel">
-                        <option value="light">Leve</option>
-                        <option value="medium" selected>Médio</option>
-                        <option value="heavy">Pesado</option>
-                        <option value="extreme">Extremo</option>
-                    </select>
-                </div>
-                <div class="option-group">
-                    <label for="junkAmount">Quantidade de Lixo: <span id="junkVal">3</span></label>
-                    <input type="number" min="0" max="15" value="3" id="junkAmount" oninput="updateNumberValue('junkVal', this.value)" />
-                </div>
-                <div class="option-group">
-                    <label for="junkMultiplier">Multiplicador de Lixo: <span id="multiVal">1</span></label>
-                    <input type="number" min="1" max="7" value="1" id="junkMultiplier" oninput="updateNumberValue('multiVal', this.value)" />
-                </div>
-                <div class="option-group">
-                    <label for="compressionLevel">Nível de Compressão</label>
-                    <select id="compressionLevel">
-                        <option value="none">Nenhum</option>
-                        <option value="basic">Básico</option>
-                        <option value="advanced">Avançado</option>
-                    </select>
-                </div>
-            </div>
-
-            <button id="advanced-btn" onclick="toggleAdvancedOptions()">Opções Avançadas</button>
-            <div class="advanced-options" id="advanced-options">
-                <div class="option-group">
-                    <label><input type="checkbox" id="encryptStrings" checked> Criptografar Strings</label>
-                </div>
-                <div class="option-group">
-                    <label><input type="checkbox" id="controlFlow" checked> Ofuscação de Fluxo de Controle</label>
-                </div>
-                <div class="option-group">
-                    <label><input type="checkbox" id="numberObf"> Ofuscação de Números</label>
-                </div>
-                <div class="option-group">
-                    <label><input type="checkbox" id="antiTamper"> Proteção Anti-Tamper</label>
-                </div>
-                <div class="option-group">
-                    <label><input type="checkbox" id="dynamicObf"> Ofuscação Dinâmica</label>
-                </div>
-            </div>
-
-            <div class="button-scroll">
-                <div class="button-row">
-                    <button class="obf" onclick="obfuscate()">Obfuscar</button>
-                    <button class="preview" onclick="previewCode()">Visualizar</button>
-                    <button class="copy" onclick="copyToClipboard()">Copiar</button>
-                    <button class="download" onclick="downloadObfuscated()">Baixar</button>
-                    <button class="clear" onclick="clearCode()">Limpar</button>
-                </div>
-            </div>
-
-            <div id="result"></div>
+        <div class="buttons-container">
+            <button class="btn" onclick="pasteCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+                Colar
+            </button>
+            <button class="btn" onclick="copyCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copiar
+            </button>
+            <button class="btn" onclick="clearCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Limpar
+            </button>
+            <button class="btn" onclick="previewCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Visualizar
+            </button>
+            <button class="btn" onclick="downloadCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download
+            </button>
+            <button class="btn btn-primary" onclick="obfuscateCode()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Obfuscar
+            </button>
         </div>
     </div>
 
-    <div class="notification" id="notification"></div>
+    <!-- Toast -->
+    <div id="toast">
+        <svg id="toast-icon" class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span id="toast-message"></span>
+    </div>
 
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script src="obfuscator.js"></script>
     <script>
-        let lastObf = "";
-        let challengeAnswer = 0;
+        // Initialize Monaco Editor
+        let editor;
+        
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        
+        require(['vs/editor/editor.main'], function() {
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: "-- Cole aqui seu script LuaU para obfuscar\n\nlocal exemplo = 'Hello World!'\n\nfunction teste()\n    print(exemplo)\nend\n\nteste()",
+                language: 'lua',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: true },
+                fontSize: 13,
+                fontFamily: "'JetBrains Mono', monospace",
+                lineNumbers: 'on',
+                roundedSelection: true,
+                scrollBeyondLastLine: false,
+                renderWhitespace: 'selection',
+                tabSize: 4,
+                autoIndent: 'full',
+                bracketPairColorization: { enabled: true },
+                wordWrap: 'on'
+            });
+            
+            // Update stats on content change
+            editor.onDidChangeModelContent(updateStats);
+            updateStats();
+            
+            // Hide loader and show main content
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'flex';
+        });
 
-        window.onload = async () => {
-            loadPreferences();
-            await initApp();
-        };
-
-        async function initApp() {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('main-content').style.display = 'flex';
-            document.body.style.alignItems = 'flex-start';
-            generateChallenge();
-            setupFileUpload();
-            setupSyntaxHighlighting();
+        // Update line and character count
+        function updateStats() {
+            const model = editor.getModel();
+            const lineCount = model.getLineCount();
+            const charCount = model.getValueLength();
+            
+            document.getElementById('lineCount').textContent = `${lineCount} ${lineCount === 1 ? 'linha' : 'linhas'}`;
+            document.getElementById('charCount').textContent = `${charCount} caracteres`;
         }
 
-        function updateNumberValue(id, value) {
-            const element = document.getElementById(id);
-            const input = document.getElementById(id.replace('Val', 'Amount') || id.replace('Val', 'Multiplier'));
-            const min = parseInt(input.min);
-            const max = parseInt(input.max);
-            let numValue = parseInt(value);
-            if (isNaN(numValue) || numValue < min) numValue = min;
-            if (numValue > max) numValue = max;
-            input.value = numValue;
-            element.textContent = numValue;
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type} active`;
-            setTimeout(() => {
-                notification.className = 'notification';
+        // Toast
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            
+            // Set icon based on type
+            let iconPath;
+            switch(type) {
+                case 'success':
+                    toast.style.borderLeft = '4px solid var(--success)';
+                    iconPath = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+                    break;
+                case 'error':
+                    toast.style.borderLeft = '4px solid var(--danger)';
+                    iconPath = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>';
+                    break;
+                case 'warning':
+                    toast.style.borderLeft = '4px solid var(--warning)';
+                    iconPath = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>';
+                    break;
+                default:
+                    toast.style.borderLeft = '4px solid var(--accent)';
+                    iconPath = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+            }
+            
+            toastIcon.innerHTML = iconPath;
+            toast.classList.add('show');
+            
+            clearTimeout(toast.timeout);
+            toast.timeout = setTimeout(() => {
+                toast.classList.remove('show');
             }, 3000);
         }
 
-        function generateChallenge() {
-            const num1 = Math.floor(Math.random() * 20) + 1;
-            const num2 = Math.floor(Math.random() * 20) + 1;
-            challengeAnswer = num1 + num2;
-            document.getElementById('challenge-text').textContent = `Resolva: ${num1} + ${num2} =`;
-            document.getElementById('challenge-input').value = '';
-        }
-
-        function isBot() {
-            const honeypot = document.getElementById("botCheck").value.trim();
-            const challengeInput = parseInt(document.getElementById("challenge-input").value);
-            return honeypot !== "" || isNaN(challengeInput) || challengeInput !== challengeAnswer;
-        }
-
-        function setupFileUpload() {
-            const fileInput = document.getElementById('fileInput');
-            const fileName = document.getElementById('fileName');
-            fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    fileName.textContent = file.name;
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        document.getElementById('inputCode').value = event.target.result;
-                        highlightInputSyntax();
-                    };
-                    reader.readAsText(file);
-                } else {
-                    fileName.textContent = 'Nenhum arquivo selecionado';
-                }
-            });
-        }
-
-        function setupSyntaxHighlighting() {
-            const inputCode = document.getElementById('inputCode');
-            inputCode.addEventListener('input', highlightInputSyntax);
-        }
-
-        function highlightInputSyntax() {
-            const inputCode = document.getElementById('inputCode');
-            const highlighted = highlightSyntax(inputCode.value);
-            inputCode.innerHTML = highlighted; // Note: This is a simplified approach; consider a proper editor like CodeMirror for better results
-        }
-
-        function validateLua(code) {
+        // Button Functions
+        async function copyCode() {
+            const text = editor.getValue();
             try {
-                const keywords = [
-                    'and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function', 'goto', 
-                    'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true', 
-                    'until', 'while', 'task', 'spawn', 'game', 'Instance'
-                ];
-                const lines = code.split('\n');
-                let valid = false;
-                for (const line of lines) {
-                    if (keywords.some(kw => line.trim().startsWith(kw) || line.includes(kw))) {
-                        valid = true;
-                        break;
-                    }
-                }
-                return valid ? null : 'Código Lua inválido ou não detectado.';
-            } catch (e) {
-                return 'Erro na validação do código: ' + e.message;
+                await navigator.clipboard.writeText(text);
+                showToast('Código copiado para a área de transferência!', 'success');
+            } catch (err) {
+                showToast('Falha ao copiar o código.', 'error');
             }
-        }
-
-        function compressCode(code, level) {
-            if (level === 'none') return code;
-            let compressed = code;
-            if (level === 'basic') {
-                compressed = compressed.replace(/\s+/g, ' ').trim();
-            } else if (level === 'advanced') {
-                compressed = compressed
-                    .replace(/--.*$/gm, '') // Remove comentários
-                    .replace(/\s+/g, ' ')
-                    .replace(/; /g, ';')
-                    .replace(/(\w+)\s*=\s*\{/g, '$1={') // Minimiza espaços em tabelas
-                    .replace(/\s*,\s*/g, ',') // Minimiza vírgulas
-                    .trim();
-            }
-            return compressed;
-        }
-
-        function encryptString(str, level) {
-            if (level === 'light') return `"${str}"`;
-            const key = Math.random().toString(36).slice(2, 12);
-            const xor = str.split('').map((c, i) => {
-                return String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length));
-            }).join('');
-            const encoded = btoa(xor).replace(/=/g, '');
-            const decoder = `
-                (function(s,k)
-                    local d=game:GetService("HttpService"):JSONDecode([[${btoa(JSON.stringify({s: encoded, k: key}))}]]);
-                    local r=""; for i=1,#d.s do
-                        r=r..string.char(bit32.bxor(string.byte(d.s,i),string.byte(d.k,(i-1)%#d.k+1)))
-                    end return r end)()
-            `;
-            return decoder;
-        }
-
-        function controlFlowObfuscation(code, level) {
-            if (level === 'light') return code;
-            const lines = code.split('\n');
-            const newLines = [];
-            let ifCount = 0;
-            const dummyVars = Array(5).fill().map(() => `_cf${Math.random().toString(36).slice(2, 8)}`);
-            lines.forEach((line, index) => {
-                newLines.push(line);
-                if (Math.random() < 0.4 && level !== 'medium') {
-                    const dummyCond = `if ${dummyVars[Math.floor(Math.random() * dummyVars.length)]} or math.random() > 0.5 then`;
-                    newLines.push(`${dummyCond} ${dummyVars[Math.floor(Math.random() * dummyVars.length)]}=task.spawn(function() end) else task.wait(math.random(0,1)) end`);
-                }
-                if (level === 'extreme' && Math.random() < 0.2) {
-                    newLines.push(`local _obf${ifCount++}=game:GetService("RunService").Heartbeat:Connect(function() end);`);
-                }
-            });
-            if (level === 'extreme') {
-                newLines.unshift(`local ${dummyVars.join(',')}=${Array(dummyVars.length).fill('nil').join(',')};`);
-            }
-            return newLines.join('\n');
-        }
-
-        function numberObfuscation(code, level) {
-            if (level === 'light') return code;
-            return code.replace(/\b(\d+)\b/g, (match, num) => {
-                const n = parseInt(num);
-                const operations = [
-                    `(bit32.bxor(${n ^ 0xDEADBEEF},0xDEADBEEF))`,
-                    `(${n} * 1 + math.random(0,0))`,
-                    `(math.floor(${n + 0.5} - 0.5))`,
-                    `(${n} % ${n + 1} + ${n})`
-                ];
-                return operations[Math.floor(Math.random() * operations.length)];
-            });
-        }
-
-        function antiTamper(code, level) {
-            if (level !== 'extreme') return code;
-            const hash = btoa(code + Date.now()).slice(0, 12).replace(/=/g, '');
-            const check = `
-                local h=game:GetService("HttpService"):GenerateGUID(false):sub(1,12);
-                if h~="${hash}" then while true do end end;
-            `;
-            return `${check}--[ANTI-TAMPER:${hash}]--\n${code}\n--[END:${hash}]--`;
-        }
-
-        function dynamicObfuscation(code, level) {
-            if (level !== 'extreme') return code;
-            const chunks = code.split('\n').reduce((acc, line, i) => {
-                if (i % 5 === 0) acc.push([]);
-                acc[acc.length - 1].push(line);
-                return acc;
-            }, []);
-            const shuffled = chunks.sort(() => Math.random() - 0.5);
-            const decoder = `
-                local t={${shuffled.map((chunk, i) => `["${btoa(i.toString())}"]=[[${chunk.join('\n')}]]`).join(',')}};
-                local o=""; for i=0,${shuffled.length-1} do
-                    o=o..t[tostring(i)];
-                end loadstring(o)();
-            `;
-            return decoder;
-        }
-
-        function generateJunkCode(amount, multiplier, level) {
-            const junkCode = [];
-            const services = ['HttpService', 'RunService', 'UserInputService', 'TweenService'];
-            for (let i = 0; i < amount * multiplier; i++) {
-                const rand = Math.random();
-                if (rand < 0.25) {
-                    junkCode.push(`local _j${i}=game:GetService("${services[Math.floor(Math.random() * services.length)]}");`);
-                } else if (rand < 0.5) {
-                    junkCode.push(`local _j${i}=Instance.new("Folder",game:GetService("ReplicatedStorage"));`);
-                } else if (rand < 0.75) {
-                    junkCode.push(`task.spawn(function() local _t=math.random(1,100); end);`);
-                } else {
-                    junkCode.push(`local _j${i}={${Array(3).fill().map(() => Math.random().toFixed(4)).join(',')}};`);
-                }
-            }
-            return junkCode.join('\n');
-        }
-
-        function obfuscateCode(code, level, junkAmount, junkMultiplier, options) {
-            let obfuscated = code;
-            const variableMap = {};
-            let varCounter = 0;
-
-            // 1. Compressão inicial
-            if (options.compressionLevel !== 'none') {
-                obfuscated = compressCode(obfuscated, options.compressionLevel);
-            }
-
-            // 2. Renomear variáveis
-            const variableRegex = /\b(local\s+)?(\w+)\s*=/g;
-            obfuscated = obfuscated.replace(variableRegex, (match, local, varName) => {
-                if (!variableMap[varName]) {
-                    variableMap[varName] = `_v${varCounter++}_${Math.random().toString(36).slice(2, 10)}`;
-                }
-                return (local || '') + variableMap[varName] + ' =';
-            });
-
-            // 3. Criptografar strings
-            if (options.encryptStrings) {
-                const stringRegex = /"([^"]*)"/g;
-                obfuscated = obfuscated.replace(stringRegex, (match, str) => encryptString(str, level));
-            }
-
-            // 4. Adicionar código lixo
-            if (junkAmount > 0) {
-                const junkCode = generateJunkCode(junkAmount, junkMultiplier, level);
-                obfuscated = `-- Kolt Obfuscate v2\n${junkCode}\n${obfuscated}`;
-            }
-
-            // 5. Ofuscação de fluxo de controle
-            if (options.controlFlow) {
-                obfuscated = controlFlowObfuscation(obfuscated, level);
-            }
-
-            // 6. Ofuscação de números
-            if (options.numberObf) {
-                obfuscated = numberObfuscation(obfuscated, level);
-            }
-
-            // 7. Proteção anti-tamper
-            if (options.antiTamper) {
-                obfuscated = antiTamper(obfuscated, level);
-            }
-
-            // 8. Ofuscação dinâmica
-            if (options.dynamicObf && level === 'extreme') {
-                obfuscated = dynamicObfuscation(obfuscated, level);
-            }
-
-            // 9. Encapsulamento final
-            if (level === 'heavy' || level === 'extreme') {
-                const encoded = btoa(obfuscated).replace(/=/g, '');
-                obfuscated = `loadstring(game:GetService("HttpService"):Base64Decode("${encoded}"))()`;
-            }
-
-            return `-- Kolt Obfuscate v2 (Nível: ${level})\n${obfuscated}`;
-        }
-
-        async function obfuscate() {
-            if (isBot()) {
-                showNotification("Verificação de bot falhou. Tente novamente.", 'error');
-                generateChallenge();
-                return;
-            }
-
-            const code = document.getElementById("inputCode").value.trim();
-            if (!code) {
-                showNotification("Por favor, insira um script Lua.", 'error');
-                return;
-            }
-
-            const validationError = validateLua(code);
-            if (validationError) {
-                showNotification(validationError, 'error');
-                return;
-            }
-
-            const options = {
-                level: document.getElementById("obfLevel").value,
-                junkAmount: parseInt(document.getElementById("junkAmount").value),
-                junkMultiplier: parseInt(document.getElementById("junkMultiplier").value),
-                compressionLevel: document.getElementById("compressionLevel").value,
-                encryptStrings: document.getElementById("encryptStrings").checked,
-                controlFlow: document.getElementById("controlFlow").checked,
-                numberObf: document.getElementById("numberObf").checked,
-                antiTamper: document.getElementById("antiTamper").checked,
-                dynamicObf: document.getElementById("dynamicObf").checked
-            };
-
-            document.getElementById("result").textContent = "Obfuscando...";
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            try {
-                lastObf = obfuscateCode(code, options.level, options.junkAmount, options.junkMultiplier, options);
-                document.getElementById("result").innerHTML = highlightSyntax(lastObf);
-                showNotification("Código ofuscado com sucesso!", 'success');
-            } catch (e) {
-                showNotification("Erro ao ofuscar: " + e.message, 'error');
-                document.getElementById("result").textContent = "";
-            }
-            savePreferences();
-        }
-
-        function previewCode() {
-            if (!lastObf) {
-                showNotification("Nada para visualizar.", 'error');
-                return;
-            }
-            const previewWindow = window.open("", "_blank");
-            previewWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Visualização do Código</title>
-                        <style>
-                            :root {
-                                --syntax-string: #ce93d8;
-                                --syntax-keyword: #4fc3f7;
-                                --syntax-comment: #78909c;
-                                --syntax-number: #ffca28;
-                                --syntax-operator: #ff7043;
-                            }
-                            body { 
-                                font-family: 'JetBrains Mono', monospace; 
-                                background: #1e1e2b; 
-                                color: #e0e0e0; 
-                                padding: 24px;
-                                margin: 0;
-                            }
-                            pre { 
-                                white-space: pre-wrap; 
-                                font-size: 14px; 
-                                line-height: 1.6;
-                            }
-                            .keyword { color: var(--syntax-keyword); }
-                            .string { color: var(--syntax-string); }
-                            .comment { color: var(--syntax-comment); }
-                            .number { color: var(--syntax-number); }
-                            .operator { color: var(--syntax-operator); }
-                        </style>
-                    </head>
-                    <body><pre>${highlightSyntax(lastObf)}</pre></body>
-                </html>
-            `);
-        }
-
-        function highlightSyntax(code) {
-            return code
-                .replace(/\b(and|break|do|else|elseif|end|false|for|function|goto|if|in|local|nil|not|or|repeat|return|then|true|until|while|task|spawn|game|Instance)\b/g, '<span class="keyword">$1</span>')
-                .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
-                .replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>')
-                .replace(/([+\-*/%=><!&|]+)/g, '<span class="operator">$1</span>')
-                .replace(/--[^\n]*/g, '<span class="comment">$&</span>');
-        }
-
-        function copyToClipboard() {
-            if (!lastObf) {
-                showNotification("Nada para copiar.", 'error');
-                return;
-            }
-            navigator.clipboard.writeText(lastObf)
-                .then(() => showNotification("Código copiado para a área de transferência!", 'success'))
-                .catch(() => showNotification("Falha ao copiar.", 'error'));
-        }
-
-        function downloadObfuscated() {
-            if (!lastObf) {
-                showNotification("Nada para baixar.", 'error');
-                return;
-            }
-            const blob = new Blob([lastObf], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `kolt_obfuscated_${new Date().toISOString().slice(0,10)}.lua`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showNotification("Download iniciado!", 'success');
         }
 
         function clearCode() {
-            document.getElementById("inputCode").value = "";
-            document.getElementById("result").textContent = "";
-            document.getElementById("fileName").textContent = "Nenhum arquivo selecionado";
-            lastObf = "";
-            generateChallenge();
-            showNotification("Campos limpos!", 'success');
+            editor.setValue('');
+            showToast('Editor limpo com sucesso!', 'success');
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle("light-mode");
-            const themeIcon = document.querySelector('.theme-toggle');
-            themeIcon.textContent = document.body.classList.contains('light-mode') ? '🌞' : '🌙';
-            savePreferences();
-        }
-
-        function toggleAdvancedOptions() {
-            const advancedOptions = document.getElementById('advanced-options');
-            const button = document.getElementById('advanced-btn');
-            advancedOptions.classList.toggle('active');
-            button.textContent = advancedOptions.classList.contains('active') ? 
-                'Ocultar Opções Avançadas' : 'Opções Avançadas';
-        }
-
-        function savePreferences() {
-            localStorage.setItem("theme", document.body.classList.contains("light-mode") ? "light" : "dark");
-            localStorage.setItem("obfLevel", document.getElementById("obfLevel").value);
-            localStorage.setItem("junkAmount", document.getElementById("junkAmount").value);
-            localStorage.setItem("junkMultiplier", document.getElementById("junkMultiplier").value);
-            localStorage.setItem("compressionLevel", document.getElementById("compressionLevel").value);
-            localStorage.setItem("encryptStrings", document.getElementById("encryptStrings").checked);
-            localStorage.setItem("controlFlow", document.getElementById("controlFlow").checked);
-            localStorage.setItem("numberObf", document.getElementById("numberObf").checked);
-            localStorage.setItem("antiTamper", document.getElementById("antiTamper").checked);
-            localStorage.setItem("dynamicObf", document.getElementById("dynamicObf").checked);
-        }
-
-        function loadPreferences() {
-            if (localStorage.getItem("theme") === "light") {
-                document.body.classList.add("light-mode");
-                document.querySelector('.theme-toggle').textContent = '🌞';
+        async function pasteCode() {
+            try {
+                const text = await navigator.clipboard.readText();
+                editor.setValue(text);
+                showToast('Código colado com sucesso!', 'success');
+            } catch (err) {
+                showToast('Falha ao colar o código.', 'error');
             }
-            document.getElementById("obfLevel").value = localStorage.getItem("obfLevel") || "medium";
-            document.getElementById("junkAmount").value = localStorage.getItem("junkAmount") || 3;
-            document.getElementById("junkMultiplier").value = localStorage.getItem("junkMultiplier") || 1;
-            document.getElementById("compressionLevel").value = localStorage.getItem("compressionLevel") || "none";
-            document.getElementById("encryptStrings").checked = localStorage.getItem("encryptStrings") !== 'false';
-            document.getElementById("controlFlow").checked = localStorage.getItem("controlFlow") !== 'false';
-            document.getElementById("numberObf").checked = localStorage.getItem("numberObf") === 'true';
-            document.getElementById("antiTamper").checked = localStorage.getItem("antiTamper") === 'true';
-            document.getElementById("dynamicObf").checked = localStorage.getItem("dynamicObf") === 'true';
-            updateNumberValue('junkVal', document.getElementById("junkAmount").value);
-            updateNumberValue('multiVal', document.getElementById("junkMultiplier").value);
+        }
+
+        function previewCode() {
+            const content = editor.getValue().trim();
+            if (!content) {
+                showToast('Insira algum código para visualizar.', 'warning');
+                return;
+            }
+            
+            const win = window.open('', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            if (win) {
+                const escaped = content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                win.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Visualização do Código</title>
+                        <style>
+                            body {
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                                font-family: 'JetBrains Mono', monospace;
+                                padding: 20px;
+                                white-space: pre;
+                                overflow-x: auto;
+                            }
+                        </style>
+                    </head>
+                    <body>${escaped}</body>
+                    </html>
+                `);
+                win.document.close();
+            } else {
+                showToast('Permita pop-ups para visualizar o código.', 'warning');
+            }
+        }
+
+        function downloadCode() {
+            const content = editor.getValue();
+            if (!content.trim()) {
+                showToast('Nenhum código para baixar.', 'warning');
+                return;
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'script_obfuscado.lua';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Download iniciado!', 'success');
+        }
+
+        function obfuscateCode() {
+            const code = editor.getValue();
+            if (!code.trim()) {
+                showToast('Por favor, insira um código para obfuscar!', 'warning');
+                return;
+            }
+            
+            try {
+                const obfuscated = obfuscateLuaU(code); // Assumes obfuscateLuaU is defined in obfuscator.js
+                editor.setValue(obfuscated);
+                showToast('Código ofuscado com sucesso!', 'success');
+            } catch (error) {
+                showToast(`Erro ao obfuscar: ${error.message}`, 'error');
+                console.error('Obfuscation error:', error);
+            }
         }
     </script>
 </body>
