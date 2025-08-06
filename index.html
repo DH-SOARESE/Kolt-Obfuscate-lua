@@ -55,6 +55,14 @@
             position: relative;
             transition: all 0.3s ease;
         }
+        
+        body {
+    user-select: none; /* Impede seleção de texto em todo o corpo */
+}
+
+.code-editor, #result {
+    user-select: text; /* Permite seleção em code-editor e #result */
+}
 
         body.light-mode {
             background: linear-gradient(135deg, var(--light-bg-start), var(--light-bg-end));
@@ -228,19 +236,34 @@
         button#advanced-btn { background: #7e57c2; color: #fff; }
         button#advanced-btn:hover { background: #6d4ba8; }
 
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px;
-            background: var(--accent-color);
-            color: #fff;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
+    /* Modificar o .theme-toggle */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 8px;
+    background: var(--accent-color);
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 10;
+    transition: all 0.3s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Adicionar regras de seleção de texto */
+body {
+    user-select: none;
+}
+
+.code-editor, #result {
+    user-select: text;
+}
 
         .theme-toggle:hover {
             transform: rotate(360deg);
