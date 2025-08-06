@@ -256,6 +256,30 @@
     justify-content: center;
 }
 
+button {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    outline: none; /* Remove o contorno azul padrão */
+}
+
+button:focus {
+    outline: none; /* Remove o contorno ao focar */
+    box-shadow: none; /* Remove qualquer sombra de foco */
+}
+
+button:active {
+    transform: none; /* Remove movimento ao clicar */
+    box-shadow: none; /* Remove sombra ao clicar */
+}
+
 /* Adicionar regras de seleção de texto */
 body {
     user-select: none;
@@ -269,20 +293,24 @@ body {
             transform: rotate(360deg);
         }
 
-        #result {
-            min-height: 300px;
-            margin-top: 24px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 12px;
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: var(--input-text-color);
-            white-space: pre-wrap;
-            overflow: auto;
-            line-height: 1.6;
-        }
+ #result {
+    min-height: 300px;
+    margin-top: 24px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--input-text-color);
+    white-space: pre-wrap;
+    overflow: auto;
+    line-height: 1.6;
+    word-break: break-all; /* ou overflow-wrap: break-word; */
+    max-width: 100%;
+    box-sizing: border-box;
+    resize: vertical; /* Permite redimensionar verticalmente */
+}
 
         .options {
             margin: 24px 0;
@@ -494,7 +522,7 @@ body {
                 <input type="file" id="fileInput" accept=".lua,.txt" />
                 <span class="file-name" id="fileName">Nenhum arquivo selecionado</span>
             </div>
-            <textarea class="code-editor" id="inputCode" placeholder="Cole seu script Lua aqui..."></textarea>
+            <textarea class="code-editor" id="inputCode" placeholder='print("Hello Word")'></textarea>
 
             <div class="bot-challenge" id="bot-challenge">
                 <span id="challenge-text"></span>
