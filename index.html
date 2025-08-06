@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kolt Obfuscate</title>
+    <title>Kolt Obfuscate v2</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -54,15 +54,12 @@
             overflow-x: hidden;
             position: relative;
             transition: all 0.3s ease;
+            user-select: none;
         }
-        
-        body {
-    user-select: none; /* Impede seleção de texto em todo o corpo */
-}
 
-.code-editor, #result {
-    user-select: text; /* Permite seleção em code-editor e #result */
-}
+        .code-editor, #result {
+            user-select: text;
+        }
 
         body.light-mode {
             background: linear-gradient(135deg, var(--light-bg-start), var(--light-bg-end));
@@ -212,6 +209,7 @@
             min-width: 140px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            outline: none;
         }
 
         button:hover {
@@ -219,8 +217,10 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        button:active {
-            transform: translateY(0);
+        button:focus, button:active {
+            outline: none;
+            box-shadow: none;
+            transform: none;
         }
 
         button.obf { background: var(--obf-btn); color: #fff; }
@@ -236,81 +236,47 @@
         button#advanced-btn { background: #7e57c2; color: #fff; }
         button#advanced-btn:hover { background: #6d4ba8; }
 
-    /* Modificar o .theme-toggle */
-.theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 8px;
-    background: var(--accent-color);
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    z-index: 10;
-    transition: all 0.3s ease;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-button {
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 140px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    outline: none; /* Remove o contorno azul padrão */
-}
-
-button:focus {
-    outline: none; /* Remove o contorno ao focar */
-    box-shadow: none; /* Remove qualquer sombra de foco */
-}
-
-button:active {
-    transform: none; /* Remove movimento ao clicar */
-    box-shadow: none; /* Remove sombra ao clicar */
-}
-
-/* Adicionar regras de seleção de texto */
-body {
-    user-select: none;
-}
-
-.code-editor, #result {
-    user-select: text;
-}
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 10;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         .theme-toggle:hover {
             transform: rotate(360deg);
         }
 
- #result {
-    min-height: 300px;
-    margin-top: 24px;
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 12px;
-    padding: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    color: var(--input-text-color);
-    white-space: pre-wrap;
-    overflow: auto;
-    line-height: 1.6;
-    word-break: break-all; /* ou overflow-wrap: break-word; */
-    max-width: 100%;
-    box-sizing: border-box;
-    resize: vertical; /* Permite redimensionar verticalmente */
-}
+        #result {
+            min-height: 300px;
+            margin-top: 24px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--input-text-color);
+            white-space: pre-wrap;
+            overflow: auto;
+            line-height: 1.6;
+            word-break: break-all;
+            max-width: 100%;
+            box-sizing: border-box;
+            resize: vertical;
+        }
 
         .options {
             margin: 24px 0;
@@ -505,7 +471,7 @@ body {
 <body>
     <div class="loading-screen" id="loading-screen">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Inicializando Kolt Obfuscate...</div>
+        <div class="loading-text">Inicializando Kolt Obfuscate v2...</div>
     </div>
 
     <div class="main-content" id="main-content">
@@ -514,7 +480,7 @@ body {
         <div class="meteor" style="animation-delay: -2s;"></div>
         <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
         <div class="glass">
-            <h1>Kolt Obfuscate</h1>
+            <h1>Kolt Obfuscate v2</h1>
 
             <input type="text" class="honeypot" id="botCheck" autocomplete="off" />
             <div class="file-upload">
@@ -522,7 +488,7 @@ body {
                 <input type="file" id="fileInput" accept=".lua,.txt" />
                 <span class="file-name" id="fileName">Nenhum arquivo selecionado</span>
             </div>
-            <textarea class="code-editor" id="inputCode" placeholder='print("Hello Word")'></textarea>
+            <textarea class="code-editor" id="inputCode" placeholder='print("Hello World!")'></textarea>
 
             <div class="bot-challenge" id="bot-challenge">
                 <span id="challenge-text"></span>
@@ -541,11 +507,11 @@ body {
                 </div>
                 <div class="option-group">
                     <label for="junkAmount">Quantidade de Lixo: <span id="junkVal">3</span></label>
-                    <input type="range" min="0" max="10" value="3" id="junkAmount" oninput="updateSliderValue('junkVal', this.value)" />
+                    <input type="range" min="0" max="15" value="3" id="junkAmount" oninput="updateSliderValue('junkVal', this.value)" />
                 </div>
                 <div class="option-group">
                     <label for="junkMultiplier">Multiplicador de Lixo: <span id="multiVal">1</span></label>
-                    <input type="range" min="1" max="5" value="1" id="junkMultiplier" oninput="updateSliderValue('multiVal', this.value)" />
+                    <input type="range" min="1" max="7" value="1" id="junkMultiplier" oninput="updateSliderValue('multiVal', this.value)" />
                 </div>
                 <div class="option-group">
                     <label for="compressionLevel">Nível de Compressão</label>
@@ -570,6 +536,9 @@ body {
                 </div>
                 <div class="option-group">
                     <label><input type="checkbox" id="antiTamper"> Proteção Anti-Tamper</label>
+                </div>
+                <div class="option-group">
+                    <label><input type="checkbox" id="dynamicObf"> Ofuscação Dinâmica</label>
                 </div>
             </div>
 
@@ -654,11 +623,11 @@ body {
 
         function validateLua(code) {
             try {
-                const keywords = ['local', 'function', 'if', 'then', 'else', 'end', 'return', 'while', 'for'];
+                const keywords = ['local', 'function', 'if', 'then', 'else', 'end', 'return', 'while', 'for', 'task', 'spawn', 'game', 'Instance'];
                 const lines = code.split('\n');
                 let valid = false;
                 for (let line of lines) {
-                    if (keywords.some(kw => line.trim().startsWith(kw))) {
+                    if (keywords.some(kw => line.trim().startsWith(kw) || line.includes(kw))) {
                         valid = true;
                         break;
                     }
@@ -676,51 +645,112 @@ body {
                 compressed = compressed.replace(/\s+/g, ' ').trim();
             } else if (level === 'advanced') {
                 compressed = compressed
-                    .replace(/--.*$/gm, '') // Remove comentários
-                    .replace(/\s+/g, ' ')   // Reduz espaços
-                    .replace(/; /g, ';')    // Remove espaços após ponto e vírgula
+                    .replace(/--.*$/gm, '')
+                    .replace(/\s+/g, ' ')
+                    .replace(/; /g, ';')
+                    .replace(/(\w+)\s*=\s*\{/g, '$1={') // Minimiza espaços em tabelas
+                    .replace(/\s*,\s*/g, ',') // Minimiza vírgulas
                     .trim();
             }
             return compressed;
         }
 
-        function encryptString(str) {
-            // Simulação de criptografia mais robusta
-            const key = Math.random().toString(36).slice(2, 10);
-            const encrypted = str.split('').map((c, i) => {
+        function encryptString(str, level) {
+            if (level === 'light') return `"${str}"`;
+            const key = Math.random().toString(36).slice(2, 12);
+            const xor = str.split('').map((c, i) => {
                 return String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length));
             }).join('');
-            return `decrypt("${btoa(encrypted)}", "${key}")`;
+            const encoded = btoa(xor).replace(/=/g, '');
+            const decoder = `
+                (function(s,k)
+                    local d=game:GetService("HttpService"):JSONDecode([[${btoa(JSON.stringify({s: encoded, k: key}))}]]);
+                    local r=""; for i=1,#d.s do
+                        r=r..string.char(bit32.bxor(string.byte(d.s,i),string.byte(d.k,(i-1)%#d.k+1)))
+                    end return r end)()
+            `;
+            return decoder;
         }
 
-        function controlFlowObfuscation(code) {
-            // Adiciona estruturas de controle falsas
+        function controlFlowObfuscation(code, level) {
+            if (level === 'light') return code;
             const lines = code.split('\n');
             const newLines = [];
             let ifCount = 0;
-            lines.forEach(line => {
+            const dummyVars = Array(5).fill().map(() => `_cf${Math.random().toString(36).slice(2, 8)}`);
+            lines.forEach((line, index) => {
                 newLines.push(line);
-                if (Math.random() < 0.3) {
-                    newLines.push(`if _obf${ifCount++} == nil then _obf${ifCount} = math.random() end`);
+                if (Math.random() < 0.4 && level !== 'medium') {
+                    const dummyCond = `if ${dummyVars[Math.floor(Math.random() * dummyVars.length)]} or math.random() > 0.5 then`;
+                    newLines.push(`${dummyCond} ${dummyVars[Math.floor(Math.random() * dummyVars.length)]}=task.spawn(function() end) else task.wait(math.random(0,1)) end`);
+                }
+                if (level === 'extreme' && Math.random() < 0.2) {
+                    newLines.push(`local _obf${ifCount++}=game:GetService("RunService").Heartbeat:Connect(function() end);`);
                 }
             });
+            if (level === 'extreme') {
+                newLines.unshift(`local ${dummyVars.join(',')}=${Array(dummyVars.length).fill('nil').join(',')};`);
+            }
             return newLines.join('\n');
         }
 
-        function numberObfuscation(code) {
+        function numberObfuscation(code, level) {
+            if (level === 'light') return code;
             return code.replace(/\b(\d+)\b/g, (match, num) => {
                 const n = parseInt(num);
-                const op = Math.random() > 0.5 ? '+' : '-';
-                const offset = Math.floor(Math.random() * 100) + 1;
-                return op === '+' 
-                    ? `(${n - offset} ${op} ${offset})`
-                    : `(${n + offset} ${op} ${offset})`;
+                const operations = [
+                    `(bit32.bxor(${n ^ 0xDEADBEEF},0xDEADBEEF))`,
+                    `(${n} * 1 + math.random(0,0))`,
+                    `(math.floor(${n + 0.5} - 0.5))`,
+                    `(${n} % ${n + 1} + ${n})`
+                ];
+                return operations[Math.floor(Math.random() * operations.length)];
             });
         }
 
-        function antiTamper(code) {
-            const hash = btoa(code).slice(0, 8);
-            return `--[ANTI-TAMPER:${hash}]--\n${code}\n--[END:${hash}]--`;
+        function antiTamper(code, level) {
+            if (level !== 'extreme') return code;
+            const hash = btoa(code + Date.now()).slice(0, 12).replace(/=/g, '');
+            const check = `
+                local h=game:GetService("HttpService"):GenerateGUID(false):sub(1,12);
+                if h~="${hash}" then while true do end end;
+            `;
+            return `${check}--[ANTI-TAMPER:${hash}]--\n${code}\n--[END:${hash}]--`;
+        }
+
+        function dynamicObfuscation(code, level) {
+            if (level !== 'extreme') return code;
+            const chunks = code.split('\n').reduce((acc, line, i) => {
+                if (i % 5 === 0) acc.push([]);
+                acc[acc.length - 1].push(line);
+                return acc;
+            }, []);
+            const shuffled = chunks.sort(() => Math.random() - 0.5);
+            const decoder = `
+                local t={${shuffled.map((chunk, i) => `["${btoa(i.toString())}"]=[[${chunk.join('\n')}]]`).join(',')}};
+                local o=""; for i=0,${shuffled.length-1} do
+                    o=o..t[tostring(i)];
+                end loadstring(o)();
+            `;
+            return decoder;
+        }
+
+        function generateJunkCode(amount, multiplier, level) {
+            const junkCode = [];
+            const services = ['HttpService', 'RunService', 'UserInputService', 'TweenService'];
+            for (let i = 0; i < amount * multiplier; i++) {
+                const rand = Math.random();
+                if (rand < 0.25) {
+                    junkCode.push(`local _j${i}=game:GetService("${services[Math.floor(Math.random() * services.length)]}");`);
+                } else if (rand < 0.5) {
+                    junkCode.push(`local _j${i}=Instance.new("Folder",game:GetService("ReplicatedStorage"));`);
+                } else if (rand < 0.75) {
+                    junkCode.push(`task.spawn(function() local _t=math.random(1,100); end);`);
+                } else {
+                    junkCode.push(`local _j${i}={${Array(3).fill().map(() => Math.random().toFixed(4)).join(',')}};`);
+                }
+            }
+            return junkCode.join('\n');
         }
 
         function obfuscateCode(code, level, junkAmount, junkMultiplier, options) {
@@ -737,7 +767,7 @@ body {
             const variableRegex = /\b(local\s+)?(\w+)\s*=/g;
             obfuscated = obfuscated.replace(variableRegex, (match, local, varName) => {
                 if (!variableMap[varName]) {
-                    variableMap[varName] = `_v${varCounter++}_${Math.random().toString(36).slice(2, 8)}`;
+                    variableMap[varName] = `_v${varCounter++}_${Math.random().toString(36).slice(2, 10)}`;
                 }
                 return (local || '') + variableMap[varName] + ' =';
             });
@@ -745,49 +775,42 @@ body {
             // 3. Criptografar strings
             if (options.encryptStrings) {
                 const stringRegex = /"([^"]*)"/g;
-                obfuscated = obfuscated.replace(stringRegex, (match, str) => {
-                    return level === 'light' ? match : encryptString(str);
-                });
+                obfuscated = obfuscated.replace(stringRegex, (match, str) => encryptString(str, level));
             }
 
             // 4. Adicionar código lixo
             if (junkAmount > 0) {
-                const junkCode = [];
-                for (let i = 0; i < junkAmount * junkMultiplier; i++) {
-                    const rand = Math.random();
-                    if (rand < 0.3) {
-                        junkCode.push(`local _junk${i} = math.random(1, 100);`);
-                    } else if (rand < 0.6) {
-                        junkCode.push(`local _junk${i} = string.char(math.random(65, 90));`);
-                    } else {
-                        junkCode.push(`local _junk${i} = {${Array(3).fill().map(() => Math.random()).join(',')}};`);
-                    }
-                }
-                obfuscated = `-- Kolt Obfuscate\n${junkCode.join('\n')}\n${obfuscated}`;
+                const junkCode = generateJunkCode(junkAmount, junkMultiplier, level);
+                obfuscated = `-- Kolt Obfuscate v2\n${junkCode}\n${obfuscated}`;
             }
 
             // 5. Ofuscação de fluxo de controle
-            if (options.controlFlow && level !== 'light') {
-                obfuscated = controlFlowObfuscation(obfuscated);
+            if (options.controlFlow) {
+                obfuscated = controlFlowObfuscation(obfuscated, level);
             }
 
             // 6. Ofuscação de números
-            if (options.numberObf && level !== 'light') {
-                obfuscated = numberObfuscation(obfuscated);
+            if (options.numberObf) {
+                obfuscated = numberObfuscation(obfuscated, level);
             }
 
             // 7. Proteção anti-tamper
-            if (options.antiTamper && level === 'extreme') {
-                obfuscated = antiTamper(obfuscated);
+            if (options.antiTamper) {
+                obfuscated = antiTamper(obfuscated, level);
             }
 
-            // 8. Ofuscação pesada/extrema
+            // 8. Ofuscação dinâmica
+            if (options.dynamicObf && level === 'extreme') {
+                obfuscated = dynamicObfuscation(obfuscated, level);
+            }
+
+            // 9. Encapsulamento final
             if (level === 'heavy' || level === 'extreme') {
                 const encoded = btoa(obfuscated).replace(/=/g, '');
-                obfuscated = `loadstring("${encoded}")()`;
+                obfuscated = `loadstring(game:GetService("HttpService"):Base64Decode("${encoded}"))()`;
             }
 
-            return `-- Kolt Obfuscate (Nível: ${level})\n${obfuscated}`;
+            return `-- Kolt Obfuscate v2 (Nível: ${level})\n${obfuscated}`;
         }
 
         async function obfuscate() {
@@ -817,7 +840,8 @@ body {
                 encryptStrings: document.getElementById("encryptStrings").checked,
                 controlFlow: document.getElementById("controlFlow").checked,
                 numberObf: document.getElementById("numberObf").checked,
-                antiTamper: document.getElementById("antiTamper").checked
+                antiTamper: document.getElementById("antiTamper").checked,
+                dynamicObf: document.getElementById("dynamicObf").checked
             };
 
             document.getElementById("result").textContent = "Obfuscando...";
@@ -869,7 +893,7 @@ body {
 
         function highlightSyntax(code) {
             return code
-                .replace(/\b(local|function|if|then|else|end|return|while|for)\b/g, '<span class="keyword">$1</span>')
+                .replace(/\b(local|function|if|then|else|end|return|while|for|task|spawn|game|Instance)\b/g, '<span class="keyword">$1</span>')
                 .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
                 .replace(/--[^\n]*/g, '<span class="comment">$&</span>');
         }
@@ -933,6 +957,7 @@ body {
             localStorage.setItem("controlFlow", document.getElementById("controlFlow").checked);
             localStorage.setItem("numberObf", document.getElementById("numberObf").checked);
             localStorage.setItem("antiTamper", document.getElementById("antiTamper").checked);
+            localStorage.setItem("dynamicObf", document.getElementById("dynamicObf").checked);
         }
 
         function loadPreferences() {
@@ -948,6 +973,7 @@ body {
             document.getElementById("controlFlow").checked = localStorage.getItem("controlFlow") !== 'false';
             document.getElementById("numberObf").checked = localStorage.getItem("numberObf") === 'true';
             document.getElementById("antiTamper").checked = localStorage.getItem("antiTamper") === 'true';
+            document.getElementById("dynamicObf").checked = localStorage.getItem("dynamicObf") === 'true';
             updateSliderValue('junkVal', document.getElementById("junkAmount").value);
             updateSliderValue('multiVal', document.getElementById("junkMultiplier").value);
         }
